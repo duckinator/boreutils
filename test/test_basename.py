@@ -46,3 +46,11 @@ def test_step5():
     #! Potential edge case exercising steps 4+5 together.
     assert check(["basename", "/a/b/c/d/owo///"]).stdout == "owo\n"
     assert check(["basename", "///a/b/c/d/owo///"]).stdout == "owo\n"
+
+def test_step6():
+    # 6. Remove suffix if it exists and is not the entire contents of the
+    #    string.
+    assert check(["basename","///a/b/owo.ext//", ".ext"]).stdout == "owo\n"
+    assert check(["basename","///a/b/owo.ext2//", ".ext"]).stdout == "owo.ext2\n"
+    assert check(["basename","///a/b/owo.ext", ".ext"]).stdout == "owo\n"
+    assert check(["basename","///a/b/owo.ex", ".ext"]).stdout == "owo.ex\n"
