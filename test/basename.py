@@ -1,7 +1,7 @@
 import unittest
 from .util import run, fails
 
-class TestBasename(unittest.TestCase):
+class BasenameTestCase(unittest.TestCase):
     # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/self.basename.html
     basename = "./bin/basename"
 
