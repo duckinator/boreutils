@@ -6,18 +6,6 @@ class TestResult:
         self.stdout = result.stdout.decode()
         self.stderr = result.stderr.decode()
 
-class TestFailure(Exception):
-    pass
-
-def assert_eq(actual, expected):
-    if expected != actual:
-        # FIXME: Make this less of a disaster.
-        message = f"\n\nExpected:\n    {expected!r}\nGot:\n    {actual!r}"
-        raise TestFailure(message)
-
-def assert_true(actual):
-    assert_eq(actual, True)
-
 def run(args, should_fail=False):
     result = subprocess.run(args, capture_output=True)
     if should_fail:
