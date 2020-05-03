@@ -12,6 +12,11 @@ class BasenameTestCase(unittest.TestCase):
         # No args => error of the form "self.basename: ..." or "/path/to/basename: ..."
         self.assertTrue(fails([self.basename]).stderr.split(' ')[0].endswith("basename:"))
 
+    def test_help(self):
+        # Passing -h or --help => print help text.
+        self.assertEqual(fails([self.basename, "-h"]).stdout.split(' ')[0], 'Usage:')
+        self.assertEqual(fails([self.basename, "--help"]).stdout.split(' ')[0], 'Usage:')
+
     # Test the various steps:
 
     def test_step1(self):
