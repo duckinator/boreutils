@@ -43,7 +43,12 @@ static char *remove_suffix(char *string, char *suffix) {
 }
 */
 int main(int argc, char **argv) {
-    if ((argc < 1) || has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
+    if (argc < 2) {
+        bu_missing_argument(argv[0]);
+        return 1;
+    }
+
+    if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
         printf("Usage: %s FILE [SUFFIX]\n\n", argv[0]);
         puts("Strip the directory and SUFFIX from FILE.");
         return 1;

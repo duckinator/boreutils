@@ -4,7 +4,7 @@
 #include <string.h>
 
 int has_arg(int argc, char **argv, char *search);
-void bu_missing_operand(char *name);
+void bu_missing_argument(char *name);
 
 
 // FIXME: Having this in a header is definitely a hack.
@@ -20,8 +20,8 @@ int has_arg(int argc, char **argv, char *search)
 }
 
 
-void bu_missing_operand(char *name) {
-    printf("%s: Missing operand\nTry '%s --help' for more information.\n", name, name);
+void bu_missing_argument(char *name) {
+    printf("%s: Missing argument\nSee '%s --help' for more information.\n", name, name);
 }
 
 #endif
