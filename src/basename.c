@@ -54,6 +54,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    if (bu_handle_version(argc, argv)) {
+        return 0;
+    }
+
     char *string = argv[1];
 
     // 1. If string is NULL, POSIX.1-2017 allows to return either '.' or
