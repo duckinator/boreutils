@@ -15,6 +15,7 @@ static int consists_entirely_of(char *string, char value) {
 static void truncate_trailing_slashes(char *string) {
     size_t pos = strlen(string);
     for (size_t i = 0; i < strlen(string); i++) {
+        pos--;
         if (string[pos] == '/') {
             // If the current character is a slash, truncate the string.
             string[pos] = '\0';
@@ -22,7 +23,6 @@ static void truncate_trailing_slashes(char *string) {
             // If the current character is _not_ a slash, break immediately.
             break;
         }
-        pos--;
     }
 }
 /*
