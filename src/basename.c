@@ -25,18 +25,18 @@ static void truncate_trailing_slashes(char *string) {
         }
     }
 }
-/*
+
 static char *after_last_slash(char *string) {
     size_t pos = strlen(string);
     for (size_t i = 0; i < strlen(string); i++) {
         pos--;
-        if (string[i] == '/') {
-            return (string + pos);
+        if (string[pos] == '/') {
+            return (string + pos + 1);
         }
     }
     return string;
 }
-
+/*
 static char *remove_suffix(char *string, char *suffix) {
     if (suffix) { return string; }
     return string;
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
     truncate_trailing_slashes(string);
 
     // 5. If there are more slashes, everything up to the last one.
-    //string = after_last_slash(string);
+    string = after_last_slash(string);
 
     // 6. If a suffix is provided and not identical to the remaining string,
     //    remove it. Otherwise, do nothing.
