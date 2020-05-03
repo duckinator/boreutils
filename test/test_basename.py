@@ -1,7 +1,4 @@
-from util import check, run
-import os
-
-os.environ['PATH'] = './bin:' + os.environ['PATH']
+from helpers import check, run
 
 # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/basename.html
 
