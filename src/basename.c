@@ -36,12 +36,16 @@ static char *after_last_slash(char *string) {
     }
     return string;
 }
-/*
-static char *remove_suffix(char *string, char *suffix) {
-    if (suffix) { return string; }
-    return string;
+
+static void remove_suffix(char *string, char *suffix) {
+    size_t len = strlen(string);
+    size_t suffix_len = strlen(suffix);
+
+    if (strncmp((string + len - suffix_len), suffix, suffix_len) == 0) {
+        string[len - suffix_len] = '\0';
+    }
 }
-*/
+
 int main(int argc, char **argv) {
     if (argc < 2) {
         bu_missing_argument(argv[0]);
@@ -85,7 +89,7 @@ int main(int argc, char **argv) {
     // 6. If a suffix is provided and not identical to the remaining string,
     //    remove it. Otherwise, do nothing.
     if (argc > 2) {
-        //string = remove_suffix(string, argv[2]);
+        remove_suffix(string, argv[2]);
     }
 
     puts(string);
