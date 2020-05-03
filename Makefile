@@ -12,6 +12,9 @@ bin/%: src/%.c
 	@mkdir -p bin/
 	${CC} ${CFLAGS} $< -o $@
 
+test: all
+	pytest
+
 clean:
 	rm -rf bin/
 
