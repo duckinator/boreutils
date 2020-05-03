@@ -30,7 +30,7 @@ void bu_missing_argument(char *name) {
 
 int bu_handle_version(int argc, char **argv) {
     if (has_arg(argc, argv, "--version")) {
-        printf("Boreutils %s v%s\n", argv[0], BOREUTILS_VERSION);
+        printf("%s (Boreutils) %s\n", argv[0], BOREUTILS_VERSION);
         return 1;
     }
 
