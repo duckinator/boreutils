@@ -16,8 +16,3 @@ def run(args, should_fail=False):
 
 def fails(args):
     return run(args, should_fail=True)
-
-def prints_help(args):
-    stderr = run(args, should_fail=True).stderr.decode()
-    print(stderr)
-    return stderr.startswith("Usage: ")
