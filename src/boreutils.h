@@ -24,7 +24,7 @@ int has_arg(int argc, char **argv, char *search)
 
 
 void bu_missing_argument(char *name) {
-    printf("%s: Missing argument\nSee '%s --help' for more information.\n", name, name);
+    fprintf(stderr, "%s: Missing argument\nSee '%s --help' for more information.\n", name, name);
 }
 
 

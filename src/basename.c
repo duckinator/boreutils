@@ -60,9 +60,9 @@ int main(int argc, char **argv) {
 
     char *string = argv[1];
 
-    // 1. If string is NULL, POSIX.1-2017 allows to return either '.' or
-    //    a null string. We go with a null string.
-    if ((argc < 2) || (argv[0] == NULL)) {
+    // 1. If string is empty, POSIX.1-2017 allows to return either '.' or
+    //    an empty string. We go with an empty string.
+    if (strlen(argv[1]) == 0) {
         puts("");
         return 0;
     }
