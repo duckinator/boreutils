@@ -9,7 +9,7 @@ lint_task:
     - pip install pylint
   script:
     - pylint --version
-    - pylint
+    - pylint test/**/*.py
 
 test_task:
   container:
