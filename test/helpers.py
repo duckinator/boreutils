@@ -1,7 +1,12 @@
+"""
+Helper functions for the Boreutils test suite.
+"""
+
 from contextlib import contextmanager
 from pathlib import Path
 import os
 import subprocess
+
 
 @contextmanager
 def _modified_path():
@@ -17,12 +22,19 @@ def _modified_path():
 
 
 def check(cmd):
+    """Run a command, capture the output as text, check it had a 0 returncode,
+       and return the +CompletedProcess+ object."""
     with _modified_path():
         return subprocess.run(cmd, capture_output=True, text=True, check=True)
 
+
 def check_version(tool):
+    """Check if running `{tool} --version` has '(Boreutils)' as the second word."""
     return check([tool, "--version"]).stdout.split(' ')[1] == '(Boreutils)'
 
+
 def run(cmd):
+    """Run a command, capture the output as text, _don't_ check the return code,
+       and return the +CompletedProcess+ object."""
     with _modified_path():
-        return subprocess.run(cmd, capture_output=True, text=True)
+        return subprocess.run(cmd, capture_output=True, text=True, check=False)
