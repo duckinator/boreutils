@@ -13,8 +13,9 @@ lint_task:
 
 test_task:
   container:
-    image: debian:10-slim
+    image: python:3.7-slim
   install_script:
     - "apt-get update && apt-get install -y clang make"
+    - pip install pytest
   script:
     - make test
