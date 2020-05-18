@@ -8,5 +8,9 @@ int main(int argc, char **argv)
         printf("Do nothing and fail.\n");
     }
 
+    if (bu_handle_version(argc, argv)) {
+        return 0;
+    }
+
     return 1;
 }

@@ -16,10 +16,13 @@ def _modified_path():
         os.environ['PATH'] = original_path
 
 
-def check(args):
+def check(cmd):
     with _modified_path():
-        return subprocess.run(args, capture_output=True, text=True, check=True)
+        return subprocess.run(cmd, capture_output=True, text=True, check=True)
 
-def run(args):
+def check_version(tool):
+    return check([tool, "--version"]).stdout.split(' ')[1] == '(Boreutils)'
+
+def run(cmd):
     with _modified_path():
-        return subprocess.run(args, capture_output=True, text=True)
+        return subprocess.run(cmd, capture_output=True, text=True)
