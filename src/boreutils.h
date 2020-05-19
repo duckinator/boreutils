@@ -8,6 +8,8 @@ static const char *BOREUTILS_VERSION = "0.0.0b1";
 
 int has_arg(int argc, char **argv, char *search);
 void bu_missing_argument(char *name);
+void bu_extra_argument(char *name);
+
 int bu_handle_version(int argc, char **argv);
 
 
@@ -25,7 +27,12 @@ int has_arg(int argc, char **argv, char *search)
 
 
 void bu_missing_argument(char *name) {
-    fprintf(stderr, "%s: Missing argument\nSee '%s --help' for more information.\n", name, name);
+    fprintf(stderr, "%s: Missing argument\nSee '%s --help' for usage information.\n", name, name);
+}
+
+
+void bu_extra_argument(char *name) {
+    fprintf(stderr, "%s: Extra argument\nSee '%s --help' for usage information.\n", name, name);
 }
 
 
