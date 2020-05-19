@@ -1,20 +1,48 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
 #include "boreutils.h"
 
+// https://pubs.opengroup.org/onlinepubs/9699919799/utilities/pwd.html
+
 int main(int argc, char **argv)
 {
+    bool dash_p = false;
+
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
-        printf("Usage: %s\n\n", argv[0]);
+        printf("Usage: %s [-L|-P]\n\n", argv[0]);
         puts("Print the name of the current working directory.");
+        return 1;
+    }
+
+    if (bu_handle_version(argc, argv)) {
         return 0;
     }
 
-    char buf[4096];
+    // Oh no.
+    // "If both -L and -P are specified, the last one shall apply."
+    // Why, POSIX. WHY. ;~;
+    for (int i = 1; i < argc; i++) {
+        if (strncmp(argv[i], "-P", 3) == 0) {
+            dash_p = true;
+        } else if (strncmp(argv[i], "-L", 3) == 0) {
+            dash_p = false;
+        } else {
+            // Got something that's not -L or -P?
+            bu_extra_argument(argv[0]);
+            return 1;
+        }
+    }
+
+    char buf[BU_PATH_BUFSIZE];
     char *ret = getcwd(buf, sizeof(buf));
 
+    if (dash_p) {
+        // TODO: What the fuck.
+        fprintf(stderr, "Please open a pull request at https://github.com/duckinator/boreutils/pulls if you can understand what the fuck https://pubs.opengroup.org/onlinepubs/9699919799/utilities/pwd.html is trying to say.\n");
+    }
+
     if (ret == NULL) {
-        // TODO: Actually handle cases where URLs are >4k.
         perror(argv[0]);
         return 1;
     }

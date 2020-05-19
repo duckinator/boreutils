@@ -4,6 +4,13 @@
 #include <stdio.h>
 #include <string.h>
 
+// BU_PATH_BUFSIZE is 8KB which is, in practice, larger than any PATH_MAX
+// value I've encountered.
+//
+// Given that path names can be longer than PATH_MAX anyway, it seemed
+// easier to just hard-code it instead of adding yet another dependency.
+#define BU_PATH_BUFSIZE 8192
+
 static const char *BOREUTILS_VERSION = "0.0.0b1";
 
 int has_arg(int argc, char **argv, char *search);
