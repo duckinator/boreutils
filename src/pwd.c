@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include "boreutils.h"
 
@@ -38,8 +39,9 @@ int main(int argc, char **argv)
     char *ret = getcwd(buf, sizeof(buf));
 
     if (dash_p) {
-        // TODO: What the fuck.
-        fprintf(stderr, "Please open a pull request at https://github.com/duckinator/boreutils/pulls if you can understand what the fuck https://pubs.opengroup.org/onlinepubs/9699919799/utilities/pwd.html is trying to say.\n");
+        char buf2[BU_PATH_BUFSIZE];
+        char *ret2 = realpath(ret, buf2);
+        ret = ret2;
     }
 
     if (ret == NULL) {

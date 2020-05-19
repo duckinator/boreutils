@@ -1,7 +1,7 @@
 CC := clang
 
 CFLAGS := -std=c11 -pedantic-errors -fdiagnostics-show-option \
-			-Werror -Weverything
+			-Werror -Weverything -D_XOPEN_SOURCE=700
 
 SRCFILES := $(wildcard src/*.c)
 EXEFILES := $(patsubst src/%,bin/%,$(patsubst %.c,%,${SRCFILES}))

@@ -33,4 +33,6 @@ def test_main():
     assert len(check(["pwd"]).stderr) == 0
 
 def test_dash_p():
+    # TODO: Create a symlink to a directory, cd to the symlink, and check
+    #       bin/pwd output doesn't include it.
     pass
