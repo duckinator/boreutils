@@ -1,6 +1,7 @@
 #ifndef BOREUTILS_H
 #define BOREUTILS_H
 
+#include <stdio.h>
 #include <string.h>
 
 static const char *BOREUTILS_VERSION = "0.0.0b1";
