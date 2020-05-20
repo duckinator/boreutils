@@ -7,7 +7,7 @@ https://pubs.opengroup.org/onlinepubs/9699919799/utilities/basename.html
 from helpers import check, check_version, run
 
 
-def test_checking_correct_program():
+def test_version():
     """Check that we're using Boreutil's implementation."""
     assert check_version("basename")
 
@@ -16,6 +16,12 @@ def test_missing_args():
     """No args => error of the form `basename: ...`"""
     assert run(["basename"]).stderr.startswith("basename:")
     assert run(["basename"]).returncode > 0
+
+
+def test_extra_args():
+    """Too many args => error of the form `basename: ...`"""
+    assert run(["basename", "a", "b", "c"]).stderr.startswith("basename:")
+    assert run(["basename", "a", "b", "c"]).returncode > 0
 
 
 def test_help():

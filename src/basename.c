@@ -62,6 +62,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    if (argc > 3) {
+        bu_extra_argument(argv[0]);
+        return 1;
+    }
+
     char *string = argv[1];
 
     // 1. If string is empty, POSIX.1-2017 allows to return either '.' or
