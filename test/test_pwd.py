@@ -37,7 +37,9 @@ def test_main():
     assert check(["pwd"]).stdout == os.getcwd() + "\n"
     assert len(check(["pwd"]).stderr) == 0
 
+
 def test_dash_p():
+    """`pwd -P` should resolve symlinks before returning the directory."""
     # TODO: Create a symlink to a directory, cd to the symlink, and check
     #       bin/pwd output doesn't include it.
     pass

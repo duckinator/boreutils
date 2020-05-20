@@ -4,8 +4,8 @@ Tests for `tty`.
 https://pubs.opengroup.org/onlinepubs/9699919799/utilities/tty.html
 """
 
-import os
-from helpers import check, check_version, run
+# from helpers import check, check_version, run
+from helpers import check_version, run
 
 
 def test_version():
