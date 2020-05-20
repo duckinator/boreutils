@@ -1,3 +1,169 @@
 # boreutils
 
 An implementation of some of the [utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html) specified in [POSIX.1-2017](https://pubs.opengroup.org/onlinepubs/9699919799/toc.htm).
+
+# Utilities, and current status
+
+Below is a list of [POSIX.1-2017 utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html), excluding ones that are SCCS subcommands.
+
+Utilities that are checked off have been implemented.
+
+- [ ] alias
+- [ ] ar
+- [ ] asa
+- [ ] at
+- [ ] awk
+- [x] basename
+- [ ] batch
+- [ ] bc
+- [ ] bg
+- [ ] c99
+- [ ] cal
+- [ ] cat
+- [ ] cd
+- [ ] cflow
+- [ ] chgrp
+- [ ] chmod
+- [ ] chown
+- [ ] cksum
+- [ ] cmp
+- [ ] comm
+- [ ] command
+- [ ] compress
+- [ ] cp
+- [ ] crontab
+- [ ] csplit
+- [ ] ctags
+- [ ] cut
+- [ ] cxref
+- [ ] date
+- [ ] dd
+- [ ] df
+- [ ] diff
+- [ ] dirname
+- [ ] du
+- [ ] echo
+- [ ] ed
+- [ ] env
+- [ ] ex
+- [ ] expand
+- [ ] expr
+- [x] false
+- [ ] fc
+- [ ] fg
+- [ ] file
+- [ ] find
+- [ ] fold
+- [ ] fort77
+- [ ] fuser
+- [ ] gencat
+- [ ] getconf
+- [ ] getopts
+- [ ] grep
+- [ ] hash
+- [ ] head
+- [ ] iconv
+- [ ] id
+- [ ] ipcrm
+- [ ] ipcs
+- [ ] jobs
+- [ ] join
+- [ ] kill
+- [ ] lex
+- [ ] link
+- [ ] ln
+- [ ] locale
+- [ ] localedef
+- [ ] logger
+- [ ] logname
+- [ ] lp
+- [ ] ls
+- [ ] m4
+- [ ] mailx
+- [ ] make
+- [ ] man
+- [ ] mesg
+- [ ] mkdir
+- [ ] mkfifo
+- [ ] more
+- [ ] mv
+- [ ] newgrp
+- [ ] nice
+- [ ] nl
+- [ ] nm
+- [ ] nohup
+- [ ] od
+- [ ] paste
+- [ ] patch
+- [ ] pathchk
+- [ ] pax
+- [ ] pr
+- [ ] printf
+- [ ] ps
+- [x] pwd
+- [ ] qalter
+- [ ] qdel
+- [ ] qhold
+- [ ] qmove
+- [ ] qmsg
+- [ ] qrerun
+- [ ] qrls
+- [ ] qselect
+- [ ] qsig
+- [ ] qstat
+- [ ] qsub
+- [ ] read
+- [ ] renice
+- [ ] rm
+- [ ] rmdel
+- [ ] rmdir
+- [ ] sact
+- [ ] sccs
+- [ ] sed
+- [ ] sh
+- [ ] sleep
+- [ ] sort
+- [ ] split
+- [ ] strings
+- [ ] strip
+- [ ] stty
+- [ ] tabs
+- [ ] tail
+- [ ] talk
+- [ ] tee
+- [ ] test
+- [ ] time
+- [ ] touch
+- [ ] tput
+- [ ] tr
+- [x] true
+- [ ] tsort
+- [x] tty
+- [ ] type
+- [ ] ulimit
+- [ ] umask
+- [ ] unalias
+- [ ] uname
+- [ ] uncompress
+- [ ] unexpand
+- [ ] unget
+- [ ] uniq
+- [ ] unlink
+- [ ] uucp
+- [ ] uudecode
+- [ ] uuencode
+- [ ] uustat
+- [ ] uux
+- [ ] vi
+- [ ] wait
+- [ ] wc
+- [ ] who
+- [ ] write
+- [ ] xargs
+- [ ] yacc
+- [ ] zcat
+
+Here are non-POSIX.1-2017 utilities which are provided:
+
+- [x] whoami
+- [x] yes
