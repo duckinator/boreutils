@@ -8,7 +8,7 @@ import os
 from helpers import check, check_version, run
 
 
-def test_checking_correct_program():
+def test_version():
     """Check that we're using Boreutil's implementation."""
     assert check_version("whoami")
 

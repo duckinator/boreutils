@@ -7,7 +7,7 @@ https://pubs.opengroup.org/onlinepubs/9699919799/utilities/true.html
 from helpers import check_version, run
 
 
-def test_checking_correct_program():
+def test_version():
     """Check that we're using Boreutil's implementation."""
     assert check_version("true")
 
