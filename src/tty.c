@@ -14,12 +14,20 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    int dash_s = has_arg(argc, argv, "-s");
+
     if (bu_handle_version(argc, argv)) {
         return 0;
     }
 
+    if ((argc > 2) || ((argc > 1) && !dash_s)) {
+        bu_extra_argument(argv[0]);
+        return 1;
+    }
+
+
     if (isatty(STDIN_FILENO)) {
-        if (argc < 2 || !has_arg(argc, argv, "-s")) {
+        if (!dash_s) {
             printf("%s\n", ttyname(STDIN_FILENO));
         }
         return 0;
