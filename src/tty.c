@@ -11,6 +11,10 @@ int main(int argc, char **argv)
         printf("Print the file name of the terminal connected to standard input.\n\n");
         printf("Options:\n");
         printf("  -s    Don't print anything, only return an exit status.\n");
+        return 1;
+    }
+
+    if (bu_handle_version(argc, argv)) {
         return 0;
     }
 
