@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include "boreutils.h"
 
+// https://pubs.opengroup.org/onlinepubs/9699919799/utilities/tty.html
+
 int main(int argc, char **argv)
 {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
