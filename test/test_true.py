@@ -13,12 +13,12 @@ def test_version():
 
 
 def test_missing_args():
-    """Nothing to test: `false` accepts any number of arguments."""
+    """Nothing to test: `true` accepts any number of arguments."""
     pass
 
 
 def test_extra_args():
-    """Nothing to test: `false` accepts any number of arguments."""
+    """Nothing to test: `true` accepts any number of arguments."""
     pass
 
 
