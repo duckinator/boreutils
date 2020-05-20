@@ -12,6 +12,10 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    if (bu_handle_version(argc, argv)) {
+        return 0;
+    }
+
     // Endlessly print all of the arguments.
     while(1) {
         // If we got no arguments, print "y\n" and go to the next iteration.
