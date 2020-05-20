@@ -9,7 +9,7 @@ int main(int argc, char **argv)
         printf("Print a string repeatedly until killed.\n\n");
         printf("Options:\n");
         printf("  STRING    string to print (default: \"y\")\n");
-        return 0;
+        return 1;
     }
 
     if (bu_handle_version(argc, argv)) {
