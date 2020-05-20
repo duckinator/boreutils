@@ -32,6 +32,11 @@ def test_help():
     assert run(["basename", "--help"]).returncode > 0
 
 
+def test_main():
+    """This was split into the test_step[1-6] functions below."""
+    pass
+
+
 # Test the various steps:
 
 

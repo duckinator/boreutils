@@ -23,4 +23,5 @@ for f in test/test_*.py; do
     check "$f" "test_missing_args"
     check "$f" "test_extra_args"
     check "$f" "test_help"
+    check "$f" "test_main"
 done

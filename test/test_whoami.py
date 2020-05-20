@@ -13,6 +13,11 @@ def test_version():
     assert check_version("whoami")
 
 
+def test_missing_args():
+    """Nothing to test: `whoami` doesn't require any arguments."""
+    pass
+
+
 def test_extra_args():
     """Extra args => error of the form `whoami: ...`"""
     assert run(["whoami", "owo"]).stderr.startswith("whoami: ")

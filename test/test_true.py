@@ -12,12 +12,14 @@ def test_version():
     assert check_version("true")
 
 
-def test_normal_usage():
-    """Running `true` with out -h/--help/--version should print nothing and
-       exit with return code of 0."""
-    assert len(run(["true"]).stdout) == 0
-    assert len(run(["true"]).stderr) == 0
-    assert run(["true"]).returncode == 0
+def test_missing_args():
+    """Nothing to test: `false` accepts any number of arguments."""
+    pass
+
+
+def test_extra_args():
+    """Nothing to test: `false` accepts any number of arguments."""
+    pass
 
 
 def test_help():
@@ -26,3 +28,11 @@ def test_help():
     assert run(["true", "--help"]).stdout.split(' ')[0] == 'Usage:'
     assert run(["true", "-h"]).returncode > 0
     assert run(["true", "--help"]).returncode > 0
+
+
+def test_main():
+    """Running `true` with out -h/--help/--version should print nothing and
+       exit with return code of 0."""
+    assert len(run(["true"]).stdout) == 0
+    assert len(run(["true"]).stderr) == 0
+    assert run(["true"]).returncode == 0

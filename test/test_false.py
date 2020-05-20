@@ -12,7 +12,17 @@ def test_version():
     assert check_version("false")
 
 
-def test_normal_usage():
+def test_missing_args():
+    """Nothing to test: `false` accepts any number of arguments."""
+    pass
+
+
+def test_extra_args():
+    """Nothing to test: `false` accepts any number of arguments."""
+    pass
+
+
+def test_main():
     """Running `false` with out -h/--help/--version should print nothing and
        exit with return code of 1."""
     assert len(run(["false"]).stdout) == 0

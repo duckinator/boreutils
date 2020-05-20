@@ -13,6 +13,11 @@ def test_version():
     assert check_version("pwd")
 
 
+def test_missing_args():
+    """Nothing to test: `pwd` doesn't require any arguments."""
+    pass
+
+
 def test_extra_args():
     """Extra args => error of the form `pwd: ...`"""
     assert run(["pwd", "owo"]).stderr.startswith("pwd: ")
