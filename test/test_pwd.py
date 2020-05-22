@@ -5,6 +5,7 @@ https://pubs.opengroup.org/onlinepubs/9699919799/utilities/pwd.html
 """
 
 import os
+from pathlib import Path
 from helpers import check, check_version, run
 
 
@@ -38,8 +39,12 @@ def test_main():
     assert len(check(["pwd"]).stderr) == 0
 
 
-def test_dash_p():
+def test_symlink_dash_p(tmpdir):
     """`pwd -P` should resolve symlinks before returning the directory."""
-    # TODO: Create a symlink to a directory, cd to the symlink, and check
-    #       bin/pwd output doesn't include it.
-    pass
+    a = Path(tmpdir) / 'a'
+    b = Path(tmpdir) / 'b'
+
+    a.mkdir()
+    b.symlink_to(a, target_is_directory=True)
+
+    assert run(["pwd", "-P"], cwd=b).stdout == str(a) + "\n"

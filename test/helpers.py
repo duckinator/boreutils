@@ -33,8 +33,8 @@ def check_version(tool):
     return check([tool, "--version"]).stdout.split(' ')[1] == '(Boreutils)'
 
 
-def run(cmd):
+def run(cmd, **kwargs):
     """Run a command, capture the output as text, _don't_ check the return code,
        and return the +CompletedProcess+ object."""
     with _modified_path():
-        return subprocess.run(cmd, capture_output=True, text=True, check=False)
+        return subprocess.run(cmd, capture_output=True, text=True, check=False, **kwargs)

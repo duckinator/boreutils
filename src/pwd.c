@@ -1,14 +1,50 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include "boreutils.h"
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/utilities/pwd.html
 
+static int valid_pwd(char *cwd, char *env_pwd) {
+    char rp_pwd_buf[BU_PATH_BUFSIZE];
+    char *rp_pwd = realpath(env_pwd, rp_pwd_buf);
+
+    size_t env_pwd_len = strlen(env_pwd);
+
+    // If realpath() disapproves of $PWD, return 0.
+    if (rp_pwd == NULL) {
+        return 0;
+    }
+
+    // If it's not an absolute path, return 0.
+    if (env_pwd[0] != '/') {
+        return 0;
+    }
+
+    // If PWD doesn't point to the cwd, return 0.
+    if (strcmp(cwd, rp_pwd) != 0) {
+        return 0;
+    }
+
+    // If it contains a dot-dot segment, return 0.
+    char *tmp = env_pwd + env_pwd_len - 5;
+    if ((strstr(env_pwd, "/../") != NULL) || (strncmp(tmp, "/..", 4) == 0)) {
+        return 0;
+    }
+
+    // If it contains a dot segment, return 0.
+    tmp = env_pwd + env_pwd_len - 2;
+    if ((strstr(env_pwd, "/./") != NULL) || (strncmp(tmp, "/.", 4) == 0)) {
+        return 0;
+    }
+
+    return 1;
+}
+
 int main(int argc, char **argv)
 {
-    bool dash_p = false;
+    int dash_p = 0;
 
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
         printf("Usage: %s [-L|-P]\n\n", argv[0]);
@@ -25,9 +61,9 @@ int main(int argc, char **argv)
     // Why, POSIX. WHY. ;~;
     for (int i = 1; i < argc; i++) {
         if (strncmp(argv[i], "-P", 3) == 0) {
-            dash_p = true;
+            dash_p = 1;
         } else if (strncmp(argv[i], "-L", 3) == 0) {
-            dash_p = false;
+            dash_p = 0;
         } else {
             // Got something that's not -L or -P?
             bu_extra_argument(argv[0]);
@@ -36,12 +72,14 @@ int main(int argc, char **argv)
     }
 
     char buf[BU_PATH_BUFSIZE];
-    char *ret = getcwd(buf, sizeof(buf));
+    char *env_pwd = getenv("PWD");
+    char *cwd = getcwd(buf, sizeof(buf));
+    char *ret = NULL;
 
-    if (dash_p) {
-        char buf2[BU_PATH_BUFSIZE];
-        char *ret2 = realpath(ret, buf2);
-        ret = ret2;
+    if (!dash_p && (env_pwd != NULL) && (env_pwd[0] != '\0') && valid_pwd(cwd, env_pwd)) {
+        ret = env_pwd;
+    } else {
+        ret = cwd;
     }
 
     if (ret == NULL) {
