@@ -5,6 +5,7 @@ TODO: Determine if there's a standard for this.
 """
 
 import os
+import pytest
 from helpers import check, check_version, run
 
 
@@ -32,6 +33,7 @@ def test_help():
     assert run(["whoami", "--help"]).returncode > 0
 
 
+@pytest.mark.skipif(os.environ.get("CI", False) == "true", reason="Fails in CI due to needing a tty.")
 def test_main():
     """No args => user name associated with the current effective user ID."""
     assert check(["whoami"]).stdout == os.getlogin() + "\n"
