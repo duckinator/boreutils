@@ -4,17 +4,60 @@
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/utilities/date.html
 
-static int set_time(char *date_str) {
-    (void)date_str;
-    fprintf(stderr, "Setting time is not implemented.");
-    return 1;
+static int set_time(char *date, char **argv) {
+    size_t len = strlen(date);
+    struct tm tmp;
+    char *ret;
+
+    memset(&tmp, 0, sizeof(tmp));
+
+    if (len == 12) {
+        // MMDDhhmmCCYY
+        ret = strptime(date, "%m%d%H%M%Y", &tmp);
+    } else if (len == 10) {
+        // MMDDhhmmYY
+        ret = strptime(date, "%m%d%H%M%y", &tmp);
+    } else if (len == 8) {
+        // MMDDhhmm
+        ret = strptime(date, "%m%d%H%M", &tmp);
+    } else {
+        fprintf(stderr, "Invalid date string.\nSee '%s --help' for usage information.\n", argv[0]);
+        return 1;
+    }
+
+    if (ret == NULL) {
+        fprintf(stderr, "Somehow tried using invalid date string?\nThis error should never happen.\n");
+        return 1;
+    }
+
+    if (ret[0] != '\0') {
+        fprintf(stderr, "Somehow gave extra data to strptime()?\nThis error should never happen.\n");
+        return 1;
+    }
+
+
+    struct timespec ts;
+    time_t tval = mktime(&tmp);
+    if (tval == -1) {
+        fprintf(stderr, "Error calling mktime().\n");
+        return 1;
+    }
+    ts.tv_sec = tval;
+    ts.tv_nsec = 0;
+
+    if (clock_settime(CLOCK_REALTIME, &ts) == 0) {
+        perror(argv[0]);
+        return 1;
+    }
+
+    return 0;
 }
 
 int main(int argc, char **argv)
 {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
         printf("Usage: %s [-u] [+FORMAT]\n", argv[0]);
-        //printf("       %s [-u] MMDDhhmm[[CC]YY]", argv[0]);
+        printf("       %s [-u] MMDDhhmm[[CC]YY]\n", argv[0]);
         printf("Print the current time in the specified FORMAT, or set the date.\n");
         return 1;
     }
@@ -41,7 +84,7 @@ int main(int argc, char **argv)
     }
 
     if (should_set_time) {
-        return set_time(date_str);
+        return set_time(date_str, argv);
     }
 
     if (format_str == NULL) {
