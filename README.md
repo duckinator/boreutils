@@ -36,7 +36,7 @@ Utilities that are checked off have been implemented.
 - [ ] ctags
 - [ ] cut
 - [ ] cxref
-- [ ] date
+- [x] date
 - [ ] dd
 - [ ] df
 - [ ] diff
