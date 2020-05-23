@@ -63,7 +63,7 @@ static int set_time(char *date, char **argv) {
     ts.tv_sec = tval;
     ts.tv_nsec = 0;
 
-    if (clock_settime(CLOCK_REALTIME, &ts) == 0) {
+    if (clock_settime(CLOCK_REALTIME, &ts) == -1) {
         perror(argv[0]);
         return 1;
     }
