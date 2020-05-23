@@ -15,7 +15,12 @@ bin/%: src/%.c
 test: all
 	pytest
 
+compile_commands.json:
+	$(MAKE) clean
+	bear $(MAKE) all
+
 clean:
 	rm -rf bin/
 
-.PHONY: clean all
+# compile_commands.json isn't _actually_ phony, but this ensures it's always built.
+.PHONY: clean all compile_commands.json
