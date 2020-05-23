@@ -9,6 +9,11 @@ static int set_time(char *date, char **argv) {
     struct tm tmp;
     char *ret;
 
+    // For determining the current year.
+    time_t now;
+    time(&now);
+    struct tm *local = localtime(&now);
+
     memset(&tmp, 0, sizeof(tmp));
 
     if (len == 12) {
@@ -19,6 +24,8 @@ static int set_time(char *date, char **argv) {
         ret = strptime(date, "%m%d%H%M%y", &tmp);
     } else if (len == 8) {
         // MMDDhhmm
+        // Set the year, since it's not specified.
+        tmp.tm_year = local->tm_year;
         ret = strptime(date, "%m%d%H%M", &tmp);
     } else {
         fprintf(stderr, "Invalid date string.\nSee '%s --help' for usage information.\n", argv[0]);
