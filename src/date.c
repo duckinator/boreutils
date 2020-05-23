@@ -44,11 +44,22 @@ static int set_time(char *date, char **argv) {
 
 
     struct timespec ts;
+
+    // Convert from `struct tm` to `time_t`.
     time_t tval = mktime(&tmp);
     if (tval == -1) {
         fprintf(stderr, "Error calling mktime().\n");
         return 1;
     }
+
+    // Convert tval to local time.
+    struct tm *local_ts = localtime(&tval);
+    tval = mktime(local_ts);
+    if (tval == -1) {
+        fprintf(stderr, "Error calling mktime(). (Second call.)\n");
+        return 1;
+    }
+
     ts.tv_sec = tval;
     ts.tv_nsec = 0;
 
