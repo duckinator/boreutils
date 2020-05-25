@@ -10,6 +10,18 @@
 #define MONTH_BUF_WEEK 21 // len('DD ') * 7, last is \n instead of space.
 #define MONTH_BUF (MONTH_BUF_WEEK * (MAX_WEEKS_IN_MONTH + 2 /* header lines */))
 
+// Hard-code September 1752, the month POSIX-compatible `cal` treats as
+// the transition between the Julian and Gregorian calendars.
+static char sep1752[MONTH_BUF] = "\
+   September 1752   \n\
+Su Mo Tu We Th Fr Sa\n\
+       1  2 14 15 16\n\
+17 18 19 20 21 22 23\n\
+24 25 26 27 28 29 30\n\
+                    \n\
+                    \n\
+                    ";
+
 static char g_month_names[13][20] = {
     {0},
     "January",
@@ -28,9 +40,9 @@ static char g_month_names[13][20] = {
 
 static char g_days_in_month[2][13] = {
     // Non-leap years.
-    {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+    {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
     // Leap years.
-    {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+    {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
 };
 
 static int g_is_leap_year(int year) {
@@ -41,7 +53,7 @@ static long g_daystotal(int y, int m, int d) {
     int days = d;
     for (int year = 1; year <= y; year++)
     {
-        int max_month = ( year < y ? 12 : m-2 );
+        int max_month = ( year < y ? 12 : m-1 );
         int leap = g_is_leap_year(year);
 
         for (int month = 0; month < max_month; month++) {
@@ -116,14 +128,29 @@ static char *g_build_month(char *buf, int y, int m) {
     return buf;
 }
 
-static void g_print_month(int y, int m) {
-    char buf[MONTH_BUF] = {0};
-    puts(g_build_month((char*)&buf, y, m));
+static char *get_month(char *buf, int y, int m) {
+    if (y <= 1752 && m < 9) {
+        // Julian calendar
+        strcpy(buf, "TODO: Julian calendar for dates before September 1752.\n");
+        return buf;
+    } else if (y == 1752 && m == 9) {
+        // Hard-coded September 1752 because it's Complicated(TM).
+        strncpy(buf, sep1752, MONTH_BUF);
+        return buf;
+    } else {
+        // Gregorian calendar.
+        return g_build_month(buf, y, m);
+    }
 }
 
-static void g_print_year(int y) {
+static void print_month(int y, int m) {
+    char buf[MONTH_BUF] = {0};
+    puts(get_month((char*)buf, y, m));
+}
+
+static void print_year(int y) {
     for (int m = 1; m <= 12; m++) {
-        g_print_month(y, m);
+        print_month(y, m);
         puts("");
     }
 }
@@ -162,19 +189,10 @@ int main(int argc, char **argv) {
         m = 5;
     }
 
-    if (y <= 1752 && m < 9) {
-        // Julian calendar
-        printf("TODO: Julian calendar for dates before September 1752.\n");
-    } else if (y == 1752 && m == 9) {
-        // Hard-coded September 1752 because it's Complicated(TM).
-        printf("TODO: hard-coded September 1752.\n");
+    if (m) {
+        print_month(y, m);
     } else {
-        // Gregorian calendar.
-        if (m) {
-            g_print_month(y, m);
-        } else {
-            g_print_year(y);
-        }
+        print_year(y);
     }
 
     return 0;
