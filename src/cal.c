@@ -70,7 +70,7 @@ static int g_day_of_week(int y, int m, int d) {
 static char *g_build_month(char *buf, int y, int m) {
     char *week_str = buf + (MONTH_BUF_WEEK * 2);
     int first_dow = g_day_of_week(y, m, 1);
-    int last_date = g_days_in_month[g_is_leap_year(y)][m];
+    int last_date = g_days_in_month[g_is_leap_year(y)][m - 1];
     char *month = g_month_names[m];
     size_t month_len = strlen(month);
     size_t offset = (21 /* str size */ - 5 /* year */ - month_len) / 2;
