@@ -41,7 +41,7 @@ static long g_daystotal(int y, int m, int d) {
     int days = d;
     for (int year = 1; year <= y; year++)
     {
-        int max_month = ( year < y ? 12 : m-1 );
+        int max_month = ( year < y ? 12 : m-2 );
         int leap = g_is_leap_year(year);
 
         for (int month = 0; month < max_month; month++) {
