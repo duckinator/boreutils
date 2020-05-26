@@ -61,17 +61,17 @@ static int set_time(char *date, char **argv) {
         tmp.tm_year = local->tm_year;
         ret = strptime(date, "%m%d%H%M", &tmp);
     } else {
-        fprintf(stderr, "Invalid date string.\nSee '%s --help' for usage information.\n", argv[0]);
+        fputs("Invalid date string\nSee 'date --help' for usage information.\n", stderr);
         return 1;
     }
 
     if (ret == NULL) {
-        fprintf(stderr, "Somehow tried using invalid date string?\nThis error should never happen.\n");
+        fputs("Somehow tried using invalid date string? (This shouldn't happen!)\n", stderr);
         return 1;
     }
 
     if (ret[0] != '\0') {
-        fprintf(stderr, "Somehow gave extra data to strptime()?\nThis error should never happen.\n");
+        fputs("Somehow gave extra data to strptime()? (This shouldn't happen!)\n", stderr);
         return 1;
     }
 
@@ -81,7 +81,7 @@ static int set_time(char *date, char **argv) {
     // Convert from `struct tm` to `time_t`.
     time_t tval = mktime(&tmp);
     if (tval == -1) {
-        fprintf(stderr, "Error calling mktime().\n");
+        fputs("Error calling mktime().\n", stderr);
         return 1;
     }
 
@@ -89,7 +89,7 @@ static int set_time(char *date, char **argv) {
     struct tm *local_ts = localtime(&tval);
     tval = mktime(local_ts);
     if (tval == -1) {
-        fprintf(stderr, "Error calling mktime(). (Second call.)\n");
+        fputs("Error calling mktime(). (Second call.)\n", stderr);
         return 1;
     }
 
@@ -107,9 +107,9 @@ static int set_time(char *date, char **argv) {
 int main(int argc, char **argv)
 {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
-        printf("Usage: %s [-u] [+FORMAT]\n", argv[0]);
-        printf("       %s [-u] MMDDhhmm[[CC]YY]\n", argv[0]);
-        printf("Print the current time in the specified FORMAT, or set the date.\n");
+        puts("Usage: date [-u] [+FORMAT]");
+        puts("       date [-u] MMDDhhmm[[CC]YY");
+        puts("Print the current time in the specified FORMAT, or set the date.");
         return 1;
     }
 
