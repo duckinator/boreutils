@@ -25,8 +25,8 @@
 int main(int argc, char **argv)
 {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
-        printf("Usage: %s\n\n", argv[0]);
-        printf("Print effective userid.\n");
+        puts("Usage: whoami");
+        puts("Print effected userid.");
         return 1;
     }
 

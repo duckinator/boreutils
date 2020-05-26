@@ -214,8 +214,11 @@ static void print_year(int y) {
 
 int main(int argc, char **argv) {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
-        printf("Usage: %s\n\n", argv[0]);
-        printf("Do nothing and succeed.\n");
+        puts("Usage: cal [[MONTH] YEAR]");
+        puts("Prints a calendar for the specified timeframe.\n");
+        puts("If MONTH and YEAR are provided, prints the calendar for the specified month.");
+        puts("If only YEAR is provided, prints the calendar for all of YEAR.");
+        puts("Otherwise, prints the calendar for the current month and year.");
         return 1;
     }
 

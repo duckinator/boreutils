@@ -71,7 +71,7 @@ static void remove_suffix(char *string, char *suffix) {
 
 int main(int argc, char **argv) {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
-        printf("Usage: %s FILE [SUFFIX]\n\n", argv[0]);
+        puts("Usage: basename FILE [SUFFIX]");
         puts("Strip the directory and SUFFIX from FILE.");
         return 1;
     }

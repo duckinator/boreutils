@@ -27,10 +27,10 @@
 int main(int argc, char **argv)
 {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
-        printf("Usage: %s [STRING]\n\n", argv[0]);
-        printf("Print a string repeatedly until killed.\n\n");
-        printf("Options:\n");
-        printf("  STRING    string to print (default: \"y\")\n");
+        puts("Usage: yes [STRING]");
+        puts("Print a string repeatedly until killed\n");
+        puts("Options:");
+        puts("  STRING    string to print (default: \"y\"");
         return 1;
     }
 

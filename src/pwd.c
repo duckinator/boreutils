@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     int dash_p = 0;
 
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
-        printf("Usage: %s [-L|-P]\n\n", argv[0]);
+        puts("Usage: pwd [-L|-P]\n");
         puts("Print the name of the current working directory.");
         return 1;
     }

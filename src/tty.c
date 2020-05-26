@@ -25,10 +25,10 @@
 int main(int argc, char **argv)
 {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
-        printf("Usage: %s [-s]\n\n", argv[0]);
-        printf("Print the file name of the terminal connected to standard input.\n\n");
-        printf("Options:\n");
-        printf("  -s    Don't print anything, only return an exit status.\n");
+        puts("Usage: tty [-s]");
+        puts("Print the file name of the terminal connected to standard input.\n");
+        puts("Options:");
+        puts("  -s    Don't print anything, only return an exit status.");
         return 1;
     }
 
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 
     if (isatty(STDIN_FILENO)) {
         if (!dash_s) {
-            printf("%s\n", ttyname(STDIN_FILENO));
+            puts(ttyname(STDIN_FILENO));
         }
         return 0;
     }
