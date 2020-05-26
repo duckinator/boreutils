@@ -1,3 +1,35 @@
+/**
+ * NAME
+ * ====
+ *     date - print or set the system date and time
+ *
+ * SYNOPSIS
+ * ========
+ *     date [-u] [+FORMAT]
+ *     date [-u] MMDDhhmm[[CC]YY]
+ *
+ * DESCRIPTION
+ * ===========
+ *     In the first usage, the date utility prints the current date and time
+ *     in the specified FORMAT.
+ *
+ *     In the second usage, the date utility attempts to set the date and time.
+ *
+ * OPTIONS
+ * =======
+ *     -u       Use UTC time.
+ *
+ * OPERANDS
+ * ========
+ *     +FORMAT  If the format is specified, each conversion specifier will be
+ *              replaced with the appropriate value as specified below.
+ *              All other characters will be copied without change.
+ *
+ * Conversion Specifiers
+ * ---------------------
+ *     See strftime.
+ */
+
 #include <stdio.h>
 #include <time.h>
 #include "boreutils.h"
