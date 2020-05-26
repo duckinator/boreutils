@@ -76,8 +76,9 @@ static char *g_build_month(char *buf, int y, int m) {
     size_t month_len = strlen(month);
     size_t offset = (21 /* str size */ - 5 /* year */ - month_len) / 2;
 
-    // Fill the first line with spaces.
-    memset(buf, ' ', MONTH_BUF_WEEK);
+    // Fill the buffer with spaces.
+    memset(buf, ' ', MONTH_BUF - 1);
+
     // Skip <offset> spaces, then copy in the month.
     (void)strncpy(buf + offset, month, month_len);
     // Copy in the year.
