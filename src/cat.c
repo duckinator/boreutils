@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include "boreutils.h"
 
+// https://pubs.opengroup.org/onlinepubs/9699919799/utilities/cat.html
 
 static int cat_fd(int fd) {
     // Size is arbitrary; feel free to adjust it if needed.
