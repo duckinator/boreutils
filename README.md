@@ -42,7 +42,7 @@ Utilities that are checked off have been implemented.
 - [ ] diff
 - [ ] dirname
 - [ ] du
-- [ ] echo
+- [x] echo
 - [ ] ed
 - [ ] env
 - [ ] ex
