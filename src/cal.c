@@ -11,6 +11,23 @@
 #define MONTH_BUF_WEEK 21 // len('DD ') * 7, last is \n instead of space.
 #define MONTH_BUF (MONTH_BUF_WEEK * (MAX_WEEKS_IN_MONTH + 2 /* header lines */))
 
+// The month names for the calendar. The 1-indexed.
+static char month_names[13][20] = {
+    {0},
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+};
+
 // (Julian calendar) Given a month buffer, year, and month, render a calendar.
 static char *j_build_month(char *buf, int y, int m) {
     (void)y;
@@ -31,24 +48,6 @@ Su Mo Tu We Th Fr Sa\n\
                     \n\
                     \n\
                     ";
-
-// (Gregorian calendar)
-// The month names for the gregorian calendar. The 1-indexed.
-static char g_month_names[13][20] = {
-    {0},
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-};
 
 // (Gregorian calendar)
 // Stores the number of days in each month (indexed as 0-11 for Jan-Dec),
@@ -96,7 +95,7 @@ static char *g_build_month(char *buf, int y, int m) {
     char *week_str = buf + (MONTH_BUF_WEEK * 2);
     int first_dow = g_day_of_week(y, m, 1);
     int last_date = g_days_in_month[g_is_leap_year(y)][m - 1];
-    char *month = g_month_names[m];
+    char *month = month_names[m];
     size_t month_len = strlen(month);
     size_t offset = (21 /* str size */ - 5 /* year */ - month_len) / 2;
 
