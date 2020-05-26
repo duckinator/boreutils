@@ -34,18 +34,33 @@ int has_arg(int argc, char **argv, char *search)
 
 
 void bu_missing_argument(char *name) {
-    fprintf(stderr, "%s: Missing argument\nSee '%s --help' for usage information.\n", name, name);
+    // <name>: Missing argument
+    fputs(name, stderr);
+    fputs(": Missing argument\n", stderr);
+
+    // See '<name> --help' for usage information.
+    fputs("See '", stderr);
+    fputs(name, stderr);
+    fputs(" --help' for usage information.\n", stderr);
 }
 
 
 void bu_extra_argument(char *name) {
-    fprintf(stderr, "%s: Extra argument\nSee '%s --help' for usage information.\n", name, name);
+    // <name>: Extra argument
+    fputs(name, stderr);
+    fputs(": Extra argument\n", stderr);
+    // See '<name> --help' for usage information.
+    fputs("See '", stderr);
+    fputs(name, stderr);
+    fputs(" --help' for usage information.\n", stderr);
 }
 
 
 int bu_handle_version(int argc, char **argv) {
     if (has_arg(argc, argv, "--version")) {
-        printf("%s (Boreutils) %s\n", argv[0], BOREUTILS_VERSION);
+        fputs(argv[0], stdout);
+        fputs(" (Boreutils) ", stdout);
+        puts(BOREUTILS_VERSION);
         return 1;
     }
 
