@@ -11,6 +11,15 @@
 #define MONTH_BUF_WEEK 21 // len('DD ') * 7, last is \n instead of space.
 #define MONTH_BUF (MONTH_BUF_WEEK * (MAX_WEEKS_IN_MONTH + 2 /* header lines */))
 
+// (Julian calendar) Given a month buffer, year, and month, render a calendar.
+static char *j_build_month(char *buf, int y, int m) {
+    (void)y;
+    (void)m;
+    strcpy(buf, "TODO: Julian calendar for dates before September 1752.\n");
+    return buf;
+}
+
+// (Julian->Gregorian transition)
 // Hard-code September 1752, the month POSIX-compatible `cal` treats as
 // the transition between the Julian and Gregorian calendars.
 static char sep1752[MONTH_BUF] = "\
@@ -23,6 +32,8 @@ Su Mo Tu We Th Fr Sa\n\
                     \n\
                     ";
 
+// (Gregorian calendar)
+// The month names for the gregorian calendar. The 1-indexed.
 static char g_month_names[13][20] = {
     {0},
     "January",
@@ -39,6 +50,9 @@ static char g_month_names[13][20] = {
     "December",
 };
 
+// (Gregorian calendar)
+// Stores the number of days in each month (indexed as 0-11 for Jan-Dec),
+// for both leap and non-leap years.
 static char g_days_in_month[2][13] = {
     // Non-leap years.
     {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
@@ -46,10 +60,16 @@ static char g_days_in_month[2][13] = {
     {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
 };
 
+// (Gregorian calendar)
+// Given a year, return 1 if it's a leap year, 0 otherwise.
 static int g_is_leap_year(int year) {
     return (year % 4 == 0) && !( (year % 100 == 0) && (year % 400 != 0) );
 }
 
+// (Gregorian calendar)
+// Given a year, month, and day, determine the number of days since Jan 1, 1.
+// This is based on the "Rata Die" method:
+// https://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week#Rata_Die
 static long g_daystotal(int y, int m, int d) {
     int days = d;
     for (int year = 1; year <= y; year++)
@@ -64,10 +84,14 @@ static long g_daystotal(int y, int m, int d) {
     return days;
 }
 
+// (Gregorian calendar)
+// Given a year, month, and day, determine the day of the week.
 static int g_day_of_week(int y, int m, int d) {
     return (g_daystotal(y, m, d) % 7) + 1;
 }
 
+// (Gregorian calendar)
+// Given a month buffer, year, and month, render a calendar.
 static char *g_build_month(char *buf, int y, int m) {
     char *week_str = buf + (MONTH_BUF_WEEK * 2);
     int first_dow = g_day_of_week(y, m, 1);
@@ -133,10 +157,10 @@ static char *g_build_month(char *buf, int y, int m) {
 static char *get_month(char *buf, size_t bufsize, int y, int m) {
     if (y <= 1752 && m < 9) {
         // Julian calendar
-        strcpy(buf, "TODO: Julian calendar for dates before September 1752.\n");
-        return buf;
+        return j_build_month(buf, y, m);
     } else if (y == 1752 && m == 9) {
-        // Hard-coded September 1752 because it's Complicated(TM).
+        // Hard-coded September 1752 because it's the
+        // Complicated Transition Period(TM).
         strncpy(buf, sep1752, bufsize);
         return buf;
     } else {
