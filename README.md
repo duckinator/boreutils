@@ -18,8 +18,8 @@ Utilities that are checked off have been implemented.
 - [ ] bc
 - [ ] bg
 - [ ] c99
-- [ ] cal
-- [ ] cat
+- [ ] cal (September 1752 and later works)
+- [x] cat
 - [ ] cd
 - [ ] cflow
 - [ ] chgrp
