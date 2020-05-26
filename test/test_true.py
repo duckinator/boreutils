@@ -31,7 +31,7 @@ def test_help():
 
 
 def test_main():
-    """Running `true` with out -h/--help/--version should print nothing and
+    """Running `true` without -h/--help/--version should print nothing and
        exit with return code of 0."""
     assert len(run(["true"]).stdout) == 0
     assert len(run(["true"]).stderr) == 0

@@ -23,7 +23,7 @@ def test_extra_args():
 
 
 def test_main():
-    """Running `false` with out -h/--help/--version should print nothing and
+    """Running `false` without -h/--help/--version should print nothing and
        exit with return code of 1."""
     assert len(run(["false"]).stdout) == 0
     assert len(run(["false"]).stderr) == 0
