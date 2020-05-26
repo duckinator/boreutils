@@ -65,8 +65,9 @@ int main(int argc, char **argv)
 
         // If we get here, we just dump the entirety of argv.
         for (int i = 1; i < argc - 1; i++) {
-            printf("%s ", argv[i]);
+            fputs(argv[i], stdout);
+            fputs(" ", stdout);
         }
-        printf("%s\n", argv[argc - 1]);
+        puts(argv[argc - 1]);
     }
 }
