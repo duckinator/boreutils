@@ -5,11 +5,10 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     exit 1
 fi
 
-echo "Building..."
-make clean bin/cal
+echo "cal $@"
+make clean bin/cal >/dev/null
 
 if [ -n "$1" ] && [ -z "$2" ]; then
-    echo "Generating results for \`cal $1\`..."
     # This assumes /bin/cal is or behaves like GNU cal.
     # `bin/cal <year>` behaves close to GNU cal called in a loop
     for i in `seq 1 12`; do
@@ -18,10 +17,8 @@ if [ -n "$1" ] && [ -z "$2" ]; then
 
     ./bin/cal "$1" > b || exit 1
 else
-    echo "Generating results for \`cal $1 $2\`..."
     /bin/cal "$1" "$2" > a
     ./bin/cal "$1" "$2" > b
 fi
 
-echo "Diffing..."
 diff -B -Z a b
