@@ -1,3 +1,26 @@
+/**
+ * NAME
+ * ====
+ *     basename - strip directory and suffix from a path
+ *
+ * SYNOPSIS
+ * ========
+ *     basename FILE [SUFFIX]
+ *     basename [--help|--version]
+ *
+ * DESCRIPTION
+ * ===========
+ *     Strips the directory and SUFFIX from FILE.
+ *     The result is printed to standard output.
+ *
+ *     --help       Print help text and exit.
+ *     --version    Print version information and exit.
+ *
+ *     FILE     The path to operate on.
+ *     SUFFIX   The (optional) suffix to remove.
+ */
+
+
 #include <stdio.h>
 #include "boreutils.h"
 

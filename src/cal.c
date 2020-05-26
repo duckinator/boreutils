@@ -1,3 +1,35 @@
+/**
+ * NAME
+ * ====
+ *     cal - print a calendar
+ *
+ * SYNOPSIS
+ * ========
+ *     cal
+ *     cal YEAR
+ *     cal MONTH YEAR
+ *
+ * DESCRIPTION
+ * ===========
+ *     In the first invocation, prints a calendar for the current month and year.
+ *
+ *     In the second invocation, prints a calendar for the specified year.
+ *
+ *     In the third invocation, prints a calendar for the specified month of
+ *     the specified year.
+ *
+ *     Dates starting with September 14 1752 use the Gregorian calendar.
+ *     Dates prior to that date use the Julian calendar.
+ *
+ *     MONTH        The month, as a number from 1 (January) to 12 (December).
+ *     YEAR         The year, as a number.
+ *
+ *     --help       Print help text and exit.
+ *     --version    Print version information and exit.
+ */
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

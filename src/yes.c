@@ -1,3 +1,25 @@
+/**
+ * NAME
+ * ====
+ *     yes - print a string repeatedly until killed
+ *
+ * SYNOPSIS
+ * ========
+ *     yes [STRING]
+ *     yes [--help|--version]
+ *
+ * DESCRIPTION
+ * ===========
+ *     Print a string repeatedly until killed.
+ *
+ *     STRING       The string to print. Default: "y".
+ *
+ *     --help       Print help text and exit.
+ *     --version    Print version information and exit.
+ *
+ */
+
+
 #include <stdio.h>
 #include <string.h>
 #include "boreutils.h"

@@ -7,6 +7,7 @@
  * ========
  *     date [-u] [+FORMAT]
  *     date [-u] MMDDhhmm[[CC]YY]
+ *     date [--help|--version]
  *
  * DESCRIPTION
  * ===========
@@ -15,20 +16,20 @@
  *
  *     In the second usage, the date utility attempts to set the date and time.
  *
- * OPTIONS
- * =======
  *     -u       Use UTC time.
  *
- * OPERANDS
- * ========
- *     +FORMAT  If the format is specified, each conversion specifier will be
+ *     +FORMAT  If FORMAT is specified, each conversion specifier will be
  *              replaced with the appropriate value as specified below.
  *              All other characters will be copied without change.
+ *
+ *     --help       Print help text and exit.
+ *     --version    Print version information and exit.
  *
  * Conversion Specifiers
  * ---------------------
  *     See strftime.
  */
+
 
 #include <stdio.h>
 #include <time.h>

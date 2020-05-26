@@ -1,3 +1,23 @@
+/**
+ * NAME
+ * ====
+ *     whoami - print effective user ID.
+ *
+ * SYNOPSIS
+ * ========
+ *     whoami
+ *     whoami [--help|--version]
+ *
+ * DESCRIPTION
+ * ===========
+ *     Print the effective user ID. Equivalent to `id -un`.
+ *
+ *     --help       Print help text and exit.
+ *     --version    Print version information and exit.
+ *
+ */
+
+
 #include <stdio.h>
 #include <unistd.h>
 #include "boreutils.h"

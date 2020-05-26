@@ -1,3 +1,21 @@
+/**
+ * NAME
+ * ====
+ *     tty - prints the file name of the terminal connected to standard input
+ *
+ * SYNOPSIS
+ * ========
+ *     pwd [--help|--version]
+ *
+ * DESCRIPTION
+ * ===========
+ *     Prints the file name of the terminal connected to standard input.
+ *
+ *     --help       Print help text and exit.
+ *     --version    Print version information and exit.
+ */
+
+
 #include <stdio.h>
 #include <unistd.h>
 #include "boreutils.h"

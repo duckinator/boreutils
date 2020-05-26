@@ -1,3 +1,22 @@
+/**
+ * NAME
+ * ====
+ *     false - do nothing and fail.
+ *
+ * SYNOPSIS
+ * ========
+ *     false [ignored arguments]
+ *     false [--help|--version]
+ *
+ * DESCRIPTION
+ * ===========
+ *     Exits unsuccessfully.
+ *
+ *     --help       Print help text and exit.
+ *     --version    Print version information and exit.
+ */
+
+
 #include <stdio.h>
 #include "boreutils.h"
 

@@ -1,3 +1,25 @@
+/**
+ * NAME
+ * ====
+ *     pwd - prints the current working directory
+ *
+ * SYNOPSIS
+ * ========
+ *     pwd [-L|-P]
+ *     pwd [--help|--version]
+ *
+ * DESCRIPTION
+ * ===========
+ *     Prints the full filename of the current working directory.
+ *
+ *     -L   Use the PWD environment variable, even if it contains symlinks.
+ *     -P   Avoid all symlinks.
+ *
+ *     --help       Print help text and exit.
+ *     --version    Print version information and exit.
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
