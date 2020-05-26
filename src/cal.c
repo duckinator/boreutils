@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "boreutils.h"
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/utilities/cal.html
@@ -166,33 +167,37 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    int y = 0;
-    int m = 0;
-
     if (argc > 3) {
         bu_extra_argument(argv[0]);
         return 1;
     }
 
+    int year = 0;
+    int month = 0;
+
     if (argc == 3) {
-        y = (int)strtol(argv[2], (char**)NULL, 10);
-        m = (int)strtol(argv[1], (char**)NULL, 10);
+        year = (int)strtol(argv[2], (char**)NULL, 10);
+        month = (int)strtol(argv[1], (char**)NULL, 10);
     }
 
     if (argc == 2) {
-        y = (int)strtol(argv[1], (char**)NULL, 10);
+        year = (int)strtol(argv[1], (char**)NULL, 10);
     }
 
-    if (y == 0 && m == 0) {
-        // TODO: Don't hard-code this.
-        y = 2020;
-        m = 5;
+    if (year == 0 && month == 0) {
+        time_t current_time = time(NULL);
+        struct tm *ltime = localtime(&current_time);
+
+        // Month is 0-11, add 1 to get 1-12.
+        month = ltime->tm_mon + 1;
+        // Year is years since 1900, add 1900 for actual year.
+        year = ltime->tm_year + 1900;
     }
 
-    if (m) {
-        print_month(y, m);
+    if (month) {
+        print_month(year, month);
     } else {
-        print_year(y);
+        print_year(year);
     }
 
     return 0;
