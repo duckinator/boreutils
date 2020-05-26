@@ -128,14 +128,14 @@ static char *g_build_month(char *buf, int y, int m) {
     return buf;
 }
 
-static char *get_month(char *buf, int y, int m) {
+static char *get_month(char *buf, size_t bufsize, int y, int m) {
     if (y <= 1752 && m < 9) {
         // Julian calendar
         strcpy(buf, "TODO: Julian calendar for dates before September 1752.\n");
         return buf;
     } else if (y == 1752 && m == 9) {
         // Hard-coded September 1752 because it's Complicated(TM).
-        strncpy(buf, sep1752, MONTH_BUF);
+        strncpy(buf, sep1752, bufsize);
         return buf;
     } else {
         // Gregorian calendar.
@@ -145,7 +145,7 @@ static char *get_month(char *buf, int y, int m) {
 
 static void print_month(int y, int m) {
     char buf[MONTH_BUF] = {0};
-    puts(get_month((char*)buf, y, m));
+    puts(get_month((char*)buf, MONTH_BUF, y, m));
 }
 
 static void print_year(int y) {
