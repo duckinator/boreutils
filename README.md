@@ -40,7 +40,7 @@ Utilities that are checked off have been implemented.
 - [ ] dd
 - [ ] df
 - [ ] diff
-- [ ] dirname
+- [x] dirname
 - [ ] du
 - [x] echo
 - [ ] ed
