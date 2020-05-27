@@ -21,6 +21,47 @@ typedef struct ShellSplitResult_s {
     size_t num_pieces;
 } ShellSplitResult;
 
+static size_t decimal_places_in_int(int n) {
+    size_t decimal_places = 0;
+    int tmp = n;
+
+    while (tmp >= 1) {
+        decimal_places += 1;
+        tmp /= 10;
+    }
+
+    if (decimal_places == 0) {
+        decimal_places = 1;
+    }
+
+    return decimal_places;
+}
+
+#define INT_BUF_SIZE (sizeof(char) * (sizeof(int) + 2)) // TODO: Verify this.
+// Hard-coded to be base 10 for simplicity.
+static char *int_to_str(char result[INT_BUF_SIZE], int n) {
+    char buf[INT_BUF_SIZE];
+    int tmp = n;
+
+    size_t decimal_places = decimal_places_in_int(n);
+
+    memset(buf, 0, sizeof(buf));
+
+    for (size_t idx = 0; idx < decimal_places; idx++) {
+        buf[idx] = "0123456789abcdefghijklmnopqrstuvwxyz"[tmp % 10];
+        tmp /= 10;
+    }
+
+    result[decimal_places] = 0;
+
+    for (size_t i = 0; i < decimal_places; i++) {
+        result[i] = buf[decimal_places - i - 1];
+    }
+    result[decimal_places] = 0;
+
+    return result;
+}
+
 static void shellsplit(ShellSplitResult *result, char input[LINE_BUF_SIZE]) {
     int in_dq_str = 0;
     int in_sq_str = 0;
@@ -72,16 +113,25 @@ static char *prompt(char buf[LINE_BUF_SIZE], Settings *settings) {
     return fgets(buf, LINE_BUF_SIZE - 1, stdin);
 }
 
-static void execute(ShellSplitResult *result) {
+static int execute(ShellSplitResult *result) {
     pid_t child_pid = fork();
-    int stat_loc;
+    int status;
 
     if (child_pid == 0) {
         if (execvp(result->pieces[0], result->pieces) == -1) {
             perror("-ish");
         }
+        exit(1);
     } else {
-        waitpid(child_pid, &stat_loc, WUNTRACED);
+        waitpid(child_pid, &status, WUNTRACED);
+
+        if (WIFEXITED(status)) {
+            return WEXITSTATUS(status);
+        } else if (WIFSIGNALED(status)) {
+            // is there a more "correct" way to do this?
+            return 128 + WTERMSIG(status);
+        }
+        return 0;
     }
 }
 
@@ -111,6 +161,7 @@ static int handle_builtins(ShellSplitResult *result, Settings *settings) {
 }
 
 static void handle(char buf[LINE_BUF_SIZE], Settings *settings) {
+    static char intbuf[INT_BUF_SIZE] = {0};
     static char tmp[LINE_BUF_SIZE] = {0};
 
     size_t len = strlen(buf);
@@ -130,7 +181,8 @@ static void handle(char buf[LINE_BUF_SIZE], Settings *settings) {
         return;
     }
 
-    execute(&result);
+    int status = execute(&result);
+    setenv("?", int_to_str(intbuf, status), 1);
 }
 
 int main(int argc, char **argv) {
