@@ -114,6 +114,19 @@ static char *prompt(char buf[LINE_BUF_SIZE], Settings *settings) {
 static int execute(ShellSplitResult *result) {
     pid_t child_pid = fork();
     int status;
+    int assert = strncmp(result->pieces[0], "ASSERT", 7) == 0;
+    int assert_not = strncmp(result->pieces[0], "ASSERT-NOT", 11) == 0;
+
+    if (assert || assert_not) {
+        // Drops the first word (ASSERT or ASSERT-NOT).
+        ShellSplitResult tmpresult = {0};
+        for (size_t i = 0; i < result->num_pieces; i++) {
+            tmpresult.pieces[i] = result->pieces[i + 1];
+        }
+        tmpresult.num_pieces = result->num_pieces - 1;
+        result = &tmpresult;
+    }
+
 
     if (child_pid == 0) {
         if (execvp(result->pieces[0], result->pieces) == -1) {
@@ -123,12 +136,23 @@ static int execute(ShellSplitResult *result) {
     } else {
         waitpid(child_pid, &status, WUNTRACED);
 
+        int ret = 0;
         if (WIFEXITED(status)) {
-            return WEXITSTATUS(status);
+            ret = WEXITSTATUS(status);
         } else if (WIFSIGNALED(status)) {
             // is there a more "correct" way to do this?
-            return 128 + WTERMSIG(status);
+            ret = 128 + WTERMSIG(status);
         }
+
+        // If line was `ASSERT x` and `x` failed, exit unsuccessfully.
+        if (ret != 0 && assert) {
+            exit(1);
+        }
+        // If line was `ASSERT-NOT x` and `x` succeeded, exit unsuccessfully.
+        if (ret == 0 && assert_not) {
+            exit(1);
+        }
+
         return 0;
     }
 }
