@@ -4,7 +4,7 @@
 
 #include <stdio.h>      // fputs, fgets, stdin, stderr
 #include <stdlib.h>     // getenv, setenv
-#include <string.h>     // strcpy, strlen, strncmp
+#include <string.h>     // strncpy, strlen, strncmp
 #include <sys/wait.h>   // waitpid, WUNTRACED
 #include <unistd.h>     // fork, execvp
 
@@ -15,10 +15,6 @@ typedef struct Settings_s {
     int quick_exit;
     int quiet;
 } Settings;
-
-typedef struct State_s {
-    int exit_status;
-} State;
 
 typedef struct ShellSplitResult_s {
     char *pieces[SHELLSPLIT_MAX_PIECES];
@@ -76,50 +72,45 @@ static char *prompt(char buf[LINE_BUF_SIZE], Settings *settings) {
     return fgets(buf, LINE_BUF_SIZE - 1, stdin);
 }
 
-static int execute(ShellSplitResult *result, State *state, Settings *settings) {
+static void execute(ShellSplitResult *result) {
     pid_t child_pid = fork();
     int stat_loc;
 
     if (child_pid == 0) {
-        execvp(result->pieces[0], result->pieces);
-        fputs("-ish: error: failed to execute command.\n", stderr);
-        if (settings->quick_exit) {
-            state->exit_status = 1;
-            return 1;
+        if (execvp(result->pieces[0], result->pieces) == -1) {
+            perror("-ish");
         }
     } else {
         waitpid(child_pid, &stat_loc, WUNTRACED);
     }
-    return 0;
 }
 
 static void handle_env_vars(ShellSplitResult *result, char scratch[LINE_BUF_SIZE]) {
     for (size_t i = 0; i < result->num_pieces; i++) {
         char *tmp = result->pieces[i];
         if (tmp[0] == '$' && tmp[1] == '{' && tmp[strlen(tmp) - 1] == '}') {
-            strcpy(scratch, tmp + 2);
+            strncpy(scratch, tmp + 2, LINE_BUF_SIZE);
             scratch[strlen(scratch) - 1] = '\0';
             result->pieces[i] = getenv(scratch);
         }
     }
 }
 
-static int handle_builtins(ShellSplitResult *result, State *state, Settings *settings) {
+static int handle_builtins(ShellSplitResult *result, Settings *settings) {
     (void)settings;
-    if (strcmp(result->pieces[0], "exit") == 0) {
+    if (strncmp(result->pieces[0], "exit", 5) == 0) {
         if (result->num_pieces == 1) {
-            state->exit_status = 0;
+            exit(0);
         } else {
-            printf("\n\nTODO: Set exit_status=%s\n", result->pieces[1]);
-            state->exit_status = 123;
+            printf("\n\nTODO: Set exit status=%s\n", result->pieces[1]);
+            exit(123);
         }
-        return 1;
     }
 
     return 0;
 }
 
-static int handle(char buf[LINE_BUF_SIZE], State *state, Settings *settings) {
+static void handle(char buf[LINE_BUF_SIZE], Settings *settings) {
     static char tmp[LINE_BUF_SIZE] = {0};
 
     size_t len = strlen(buf);
@@ -128,27 +119,23 @@ static int handle(char buf[LINE_BUF_SIZE], State *state, Settings *settings) {
     }
 
     if (strlen(buf) == 0) {
-        return 0;
+        return;
     }
 
     ShellSplitResult result = {0};
     shellsplit(&result, buf);
     handle_env_vars(&result, tmp);
 
-    if (handle_builtins(&result, state, settings)) {
-        return 1;
+    if (handle_builtins(&result, settings)) {
+        return;
     }
 
-    if (execute(&result, state, settings)) {
-        return 1;
-    }
-    return 0;
+    execute(&result);
 }
 
 int main(int argc, char **argv) {
     char buf[LINE_BUF_SIZE] = {0};
     Settings settings = {0};
-    State state = {0};
 
     int help = 0;
     for (int i = 1; i < argc; i++) {
@@ -167,12 +154,9 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    while (1) {
-        char *tmp = prompt(buf, &settings);
-        if (tmp == NULL) { break; }
-        int ret = handle(buf, &state, &settings);
-        if (ret) { break; }
+    while (prompt(buf, &settings) != NULL) {
+        handle(buf, &settings);
     }
 
-    return state.exit_status;
+    return 0;
 }
