@@ -40,12 +40,10 @@ static size_t decimal_places_in_int(int n) {
 #define INT_BUF_SIZE (sizeof(char) * (sizeof(int) + 2)) // TODO: Verify this.
 // Hard-coded to be base 10 for simplicity.
 static char *int_to_str(char result[INT_BUF_SIZE], int n) {
-    char buf[INT_BUF_SIZE];
+    char buf[INT_BUF_SIZE] = {0};
     int tmp = n;
 
     size_t decimal_places = decimal_places_in_int(n);
-
-    memset(buf, 0, sizeof(buf));
 
     for (size_t idx = 0; idx < decimal_places; idx++) {
         buf[idx] = "0123456789abcdefghijklmnopqrstuvwxyz"[tmp % 10];
