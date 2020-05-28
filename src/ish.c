@@ -8,7 +8,7 @@
 #include <sys/wait.h>   // waitpid, WEXITSTATUS, WIFEXITED, WIFSIGNALED, WTERMSIG, WUNTRACED
 #include <unistd.h>     // fork, execvp
 
-#define INT_BUF_SIZE (sizeof(char) * (sizeof(int) + 2 /* sign + null */))
+#define INT_BUF_SIZE 22 // 20 (max digits in int64) + 1 (sign) + 1 (null)
 #define CHARS_PER_LINE (128 * 1024)         // Max chars per line of input
 // Can't have more chunks than repeating "X " until buffer is full.
 #define PARTS_PER_LINE (CHARS_PER_LINE / 2) // Max words per line.
