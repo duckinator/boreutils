@@ -8,6 +8,7 @@
 #include <sys/wait.h>   // waitpid, WEXITSTATUS, WIFEXITED, WIFSIGNALED, WTERMSIG, WUNTRACED
 #include <unistd.h>     // fork, execvp
 
+#define VERSION "0.0.1"
 #define INT_BUF_SIZE 22 // 20 (max digits in int64) + 1 (sign) + 1 (null)
 #define CHARS_PER_LINE (128 * 1024)         // Max chars per line of input
 // Can't have more chunks than repeating "X " until buffer is full.
@@ -106,7 +107,6 @@ static void fail(char *msg) {
     fputs(msg, stderr);
     setenv("?", "1", 1);
 }
-
 static void print_if_usage() {
     fail("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n");
 }
@@ -270,18 +270,25 @@ static void handle(char buf[CHARS_PER_LINE]) {
 int main(int argc, char **argv) {
     char buf[CHARS_PER_LINE] = {0};
     int help = 0; // Non-zero means we should print help text below.
+    int version = 0; // Non-zero means we should print version info below.
     for (int i = 1; i < argc; i++) { // Time for argument parsing!
         if (argv[i][0] != '-') { continue; } // Bail if arg is not flags.
         for (size_t j = 1; j < strlen(argv[i]); j++) {
             if (argv[i][j] == 'q') { settings.no_prompt = 1; }
             if (argv[i][j] == 'x') { settings.quick_exit = 1; }
+            if (argv[i][j] == 'v') { version = 1; break; }
             if (argv[i][j] == 'h') { help = 1; break; }
         }
+    }
+    if (version) { // If they passed -v, print help text and bail.
+        fputs("ish v" VERSION "\n", stdout);
+        return 1;
     }
     if (help) { // If they passed -h or similar, print help text and bail.
         fputs("Usage: ish [-q] [-x] [-h]\n", stdout);
         fputs("-q    Quiet\n", stdout);
         fputs("-x    Exit immediately on error\n", stdout);
+        fputs("-v    Print version information and exit\n", stdout);
         fputs("-h    Print help text and exit\n", stdout);
         return 1;
     }
