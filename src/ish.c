@@ -111,7 +111,12 @@ static char *prompt(char buf[LINE_BUF_SIZE], Settings *settings) {
     return fgets(buf, LINE_BUF_SIZE - 1, stdin);
 }
 
+static int handle_builtins(ShellSplitResult *result);
 static int execute(ShellSplitResult *result) {
+    if (handle_builtins(result)) {
+        return 0;
+    }
+
     pid_t child_pid = fork();
     int status;
     int assert = strncmp(result->pieces[0], "ASSERT", 7) == 0;
@@ -168,8 +173,7 @@ static void handle_env_vars(ShellSplitResult *result, char scratch[LINE_BUF_SIZE
     }
 }
 
-static int handle_builtins(ShellSplitResult *result, Settings *settings) {
-    (void)settings;
+static int handle_builtins(ShellSplitResult *result) {
     if (strncmp(result->pieces[0], "exit", 5) == 0) {
         if (result->num_pieces == 1) {
             exit(0);
@@ -183,6 +187,7 @@ static int handle_builtins(ShellSplitResult *result, Settings *settings) {
 }
 
 static void handle(char buf[LINE_BUF_SIZE], Settings *settings) {
+    (void)settings;
     static char intbuf[INT_BUF_SIZE] = {0};
     static char tmp[LINE_BUF_SIZE] = {0};
 
@@ -198,10 +203,6 @@ static void handle(char buf[LINE_BUF_SIZE], Settings *settings) {
     ShellSplitResult result = {0};
     shellsplit(&result, buf);
     handle_env_vars(&result, tmp);
-
-    if (handle_builtins(&result, settings)) {
-        return;
-    }
 
     int status = execute(&result);
     setenv("?", int_to_str(intbuf, status), 1);
