@@ -34,5 +34,6 @@ def test_help():
 def test_main():
     """Echo should print all arguments, no matter what."""
     assert check(["echo"]).stdout == "\n"
+    assert check(["echo", "a", "b", "c", "d"]).stdout == "a b c d\n"
     assert check(["echo", "owo"]).stdout == "owo\n"
     assert check(["echo", "owo\\nuwu"]).stdout == "owo\\nuwu\n"
