@@ -239,6 +239,13 @@ static int handle_builtins(size_t argc, char **argv) {
             print_if_usage();
         }
         return 1; // handled by a builtin
+    } else if (strncmp(argv[0], "setenv", 7) == 0) {
+        if (argc < 3) {
+            fail("Usage: setenv NAME VALUE\n");
+            return 1;
+        }
+        setenv(argv[1], argv[2], 1 /* overwrite */);
+        return 1;
     }
     return 0; // not handled a builtin
 }
