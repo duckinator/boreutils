@@ -228,6 +228,7 @@ static int handle_builtins(size_t argc, char **argv) {
         } else {
             fputs("\nTODO: Set exit status to ", stdout);
             fputs(argv[1], stdout);
+            fputs("\n", stdout);
             exit(123);
         }
     } else if (strncmp(argv[0], "if", 3) == 0) {
