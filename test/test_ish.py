@@ -53,9 +53,19 @@ def test_main():
     pass
 
 
+def test_strings():
+    """Test handling of quoted strings."""
+    assert ish("setenv X 'owo wats this'\necho ${X}")['stdout'] == "owo wats this\n"
+    assert ish('setenv X "owo wats this"\necho ${X}')['stdout'] == "owo wats this\n"
+    # NOTE: At the moment, ish treats each string as two arguments,
+    #       so "foo"'bar' is equivalent to "foo" 'bar'.
+    # assert ish('echo "hello, "\'world\'')['stdout'] == "hello, world!\n"
+
+
 def test_echo():
     """Test a basic echo command works."""
     assert ish('echo hello, world!')['stdout'] == "hello, world!\n"
+    assert ish('echo "hello," "world!"')['stdout'] == "hello, world!\n"
 
 
 def test_if_good():
