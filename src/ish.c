@@ -67,7 +67,7 @@ static size_t shellsplit(char **pieces, char input[LINE_BUF_SIZE]) {
     size_t num_pieces = 1;
     pieces[0] = tmp;
 
-    for (; tmp < (input + LINE_BUF_SIZE); tmp++) {
+    for (; tmp < (input + LINE_BUF_SIZE) && *tmp; tmp++) {
         switch (*tmp) {
         case '"':
             if (!in_sq_str) {
