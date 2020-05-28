@@ -19,15 +19,10 @@ static struct Settings_s {
 // Determine number of decimal places in an integer.
 static size_t decimal_places_in_int(int n) {
     size_t decimal_places = 0;
-    int tmp = n;
-    while (tmp >= 1) {
+    for (int tmp = n; tmp >= 1; tmp /= 10) {
         decimal_places += 1;
-        tmp /= 10;
     }
-
-    if (decimal_places == 0) {
-        decimal_places = 1;
-    }
+    if (decimal_places == 0) { decimal_places = 1; }
 
     return decimal_places;
 }
