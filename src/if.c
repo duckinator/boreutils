@@ -1,5 +1,5 @@
 #include <stdio.h>      // fputs, fgets, stdin, stderr
-#include <stdlib.h>     // malloc
+#include <stdlib.h>     // exit
 #include <string.h>     // strncpy, strlen, strncmp
 #include <sys/wait.h>   // waitpid, WUNTRACED
 #include <unistd.h>     // fork, execvp
@@ -27,7 +27,7 @@ static int execute(char **pieces) {
 }
 
 static int usage() {
-    fputs("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }", stderr);
+    fputs("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n", stderr);
     return 1;
 }
 
@@ -43,49 +43,31 @@ int main(int argc, char **argv) {
     int in_cond = 1;
     int in_cons = 0;
     int in_altr = 0;
-    int done_altr = 0;
     for (int i = 1; i < argc; i++) {
-        if (done_altr) {
-            return usage();
-        }
-
-        if (in_altr) {
-            if (strcmp(argv[i], "}") == 0) {
-                argv[i] = NULL;
-                in_altr = 0;
-                done_altr = 1;
+        if (in_altr && strcmp(argv[i], "}") == 0) {
+            argv[i] = NULL;
+            in_altr = 0;
+            if (argc > (i + 1)) {
+                return usage();
             }
         }
-
-        if (in_cons) {
-            if (strcmp(argv[i], "}") == 0) {
-                argv[i] = NULL;
-                alternative = argv + i + 3;
-                in_cons = 0;
-                in_altr = 1;
-            }
+        if (in_cons && strcmp(argv[i], "}") == 0) {
+            argv[i] = NULL;
+            alternative = argv + i + 3;
+            in_cons = 0;
+            in_altr = 1;
         }
-        if (in_cond) {
-            if (strcmp(argv[i], "then") == 0) {
-                argv[i] = NULL;
-                consequent = argv + i + 2;
-                in_cond = 0;
-                in_cons = 1;
-            }
+        if (in_cond && strcmp(argv[i], "then") == 0) {
+            argv[i] = NULL;
+            consequent = argv + i + 2;
+            in_cond = 0;
+            in_cons = 1;
         }
     }
 
-    if (condition == NULL) {
-        fputs("Condition is null?\n", stderr);
-        return 1;
-    }
-    if (consequent == NULL) {
-        fputs("Consequent is null?\n", stderr);
-        return 1;
-    }
-    if (alternative == NULL) {
-        fputs("Alternative is null?\n", stderr);
-        return 1;
+    if (condition == NULL || consequent == NULL || alternative == NULL) {
+        // The only way anything can be NULL is, _in theory_, invalid arguments.
+        return usage();
     }
 
     if (execute(condition) == 0) {
