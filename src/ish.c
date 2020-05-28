@@ -59,9 +59,15 @@ static size_t shellsplit(char **pieces, char input[LINE_BUF_SIZE]) {
     int in_dq_str = 0;
     int in_sq_str = 0;
 
+    char *tmp = input;
+    while (tmp[0] == ' ') {
+        tmp++;
+    }
+
     size_t num_pieces = 1;
-    pieces[0] = input;
-    for (char *tmp = input; tmp < (input + LINE_BUF_SIZE); tmp++) {
+    pieces[0] = tmp;
+
+    for (; tmp < (input + LINE_BUF_SIZE); tmp++) {
         switch (*tmp) {
         case '"':
             if (!in_sq_str) {
@@ -88,10 +94,12 @@ static size_t shellsplit(char **pieces, char input[LINE_BUF_SIZE]) {
             }
             break;
         case ' ':
-            if (in_sq_str == 0 && in_dq_str == 0 && *(tmp + 1) != ' ' &&
+            if (in_sq_str == 0 && in_dq_str == 0) {
+                if (*(tmp + 1) != ' ' &&
                     *(tmp + 1) != '\'' && *(tmp + 1) != '"') {
-                num_pieces++;
-                pieces[num_pieces - 1] = tmp + 1;
+                    num_pieces++;
+                    pieces[num_pieces - 1] = tmp + 1;
+                }
                 *tmp = '\0';
             }
             break;
