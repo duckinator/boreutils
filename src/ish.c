@@ -231,6 +231,10 @@ static void handle(char buf[LINE_BUF_SIZE], Settings *settings) {
     static char tmp[LINE_BUF_SIZE] = {0};
 
     size_t len = strlen(buf);
+    if (len == 0) {
+        return;
+    }
+
     if (buf[len - 1] == '\n') {
         buf[len - 1] = '\0';
     }
