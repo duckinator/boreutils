@@ -112,7 +112,7 @@ static char *prompt(char buf[LINE_BUF_SIZE]) {
     if (!settings.no_prompt) {
         fputs("$ ", stdout);
     }
-    return fgets(buf, LINE_BUF_SIZE - 1, stdin);
+    return fgets(buf, LINE_BUF_SIZE, stdin);
 }
 
 static int print_if_usage() {
