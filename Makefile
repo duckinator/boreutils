@@ -7,7 +7,7 @@ SRCFILES := $(wildcard src/*.c)
 EXEFILES := $(patsubst src/%,bin/%,$(patsubst %.c,%,${SRCFILES}))
 RSTFILES := $(patsubst src/%.c,doc/%.rst,${SRCFILES})
 
-all: ${EXEFILES}
+all: ${EXEFILES} docs
 
 docs: ${RSTFILES}
 
