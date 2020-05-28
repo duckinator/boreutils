@@ -107,6 +107,12 @@ static char *prompt(char buf[LINE_BUF_SIZE], Settings *settings) {
     return fgets(buf, LINE_BUF_SIZE - 1, stdin);
 }
 
+static int print_if_usage() {
+    fputs("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n", stderr);
+    setenv("?", "1", 1);
+    return 1;
+}
+
 static int handle_builtins(size_t argc, char **argv);
 static int execute(size_t argc, char **argv) {
     if (handle_builtins(argc, argv)) {
@@ -144,6 +150,62 @@ static void handle_env_vars(size_t argc, char **argv, char scratch[LINE_BUF_SIZE
     }
 }
 
+static int handle_if(size_t argc, char **argv) {
+    char **condition = argv + 1;
+    char **consequent = NULL;
+    char **alternative = NULL;
+
+    int in_cond = 1;
+    int in_cons = 0;
+    int in_altr = 0;
+    size_t cond_argc = 0;
+    size_t cons_argc = 0;
+    size_t altr_argc = 0;
+    for (size_t i = 1; i < argc; i++) {
+        if (in_altr) {
+            if (strcmp(argv[i], "}") == 0) {
+                argv[i] = NULL;
+                in_altr = 0;
+                if (argc > (i + 1)) {
+                    return print_if_usage();
+                }
+            } else {
+                altr_argc++;
+            }
+        }
+        if (in_cons) {
+            if (strcmp(argv[i], "}") == 0) {
+                argv[i] = NULL;
+                alternative = argv + i + 3;
+                in_cons = 0;
+                in_altr = 1;
+            } else {
+                cons_argc++;
+            }
+        }
+        if (in_cond) {
+            if (strcmp(argv[i], "then") == 0) {
+                argv[i] = NULL;
+                consequent = argv + i + 2;
+                in_cond = 0;
+                in_cons = 1;
+            } else {
+                cond_argc++;
+            }
+        }
+    }
+
+    if (condition == NULL || consequent == NULL || alternative == NULL) {
+        return print_if_usage(); // In theory, this means it got invalid arguments.
+    }
+
+    if (execute(cond_argc, condition) == 0) {
+        return execute(cons_argc, consequent);
+    } else {
+        return execute(altr_argc, alternative);
+    }
+}
+
 static int handle_builtins(size_t argc, char **argv) {
     if (strncmp(argv[0], "exit", 5) == 0) {
         if (argc == 1) {
@@ -152,9 +214,15 @@ static int handle_builtins(size_t argc, char **argv) {
             printf("\n\nTODO: Set exit status=%s\n", argv[1]);
             exit(123);
         }
+    } else if (strncmp(argv[0], "if", 3) == 0) {
+        if (argc >= 10) {
+            handle_if(argc, argv);
+        } else {
+            print_if_usage();
+        }
+        return 1; // handled by a builtin
     }
-
-    return 0;
+    return 0; // not handled a builtin
 }
 
 static void handle(char buf[LINE_BUF_SIZE], Settings *settings) {
