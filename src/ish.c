@@ -115,14 +115,13 @@ static char *prompt(char buf[LINE_BUF_SIZE]) {
     return fgets(buf, LINE_BUF_SIZE, stdin);
 }
 
-static int fail(char *msg) {
+static void fail(char *msg) {
     fputs(msg, stderr);
     setenv("?", "1", 1);
-    return 1;
 }
 
-static int print_if_usage() {
-    return fail("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n");
+static void print_if_usage() {
+    fail("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n");
 }
 
 static int handle_builtins(size_t argc, char **argv);
@@ -184,7 +183,8 @@ static int handle_if(size_t argc, char **argv) {
                 argv[i] = NULL;
                 in_altr = 0;
                 if (argc > (i + 1)) {
-                    return print_if_usage();
+                    print_if_usage();
+                    return 1;
                 }
             } else {
                 altr_argc++;
@@ -213,7 +213,8 @@ static int handle_if(size_t argc, char **argv) {
     }
 
     if (condition == NULL || consequent == NULL || alternative == NULL) {
-        return print_if_usage(); // In theory, this means it got invalid arguments.
+        print_if_usage();
+        return 1; // In theory, this means it got invalid arguments.
     }
 
     if (execute(cond_argc, condition) == 0) {
