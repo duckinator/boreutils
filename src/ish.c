@@ -8,35 +8,27 @@
 #include <sys/wait.h>   // waitpid, WEXITSTATUS, WIFEXITED, WIFSIGNALED, WTERMSIG, WUNTRACED
 #include <unistd.h>     // fork, execvp
 
+#define INT_BUF_SIZE (sizeof(char) * (sizeof(int) + 2 /* sign + null */))
 #define CHARS_PER_LINE (128 * 1024)         // Max chars per line of input
 // Can't have more chunks than repeating "X " until buffer is full.
 #define PARTS_PER_LINE (CHARS_PER_LINE / 2) // Max words per line.
+
 // `settings` variable holds all the settings.
 static struct Settings_s {
     int no_prompt;
     int quick_exit;
 } settings = {0};
-// Determine number of decimal places in an integer.
-static size_t decimal_places_in_int(int n) {
-    size_t decimal_places = 0;
-    for (int tmp = n; tmp >= 1; tmp /= 10) {
-        decimal_places += 1;
-    }
-    if (decimal_places == 0) { decimal_places = 1; }
 
-    return decimal_places;
-}
 // Convert an int to a char*, with fixed-size buffers.
-#define INT_BUF_SIZE (sizeof(char) * (sizeof(int) + 2)) // TODO: Verify this.
 static char *int_to_str(char result[INT_BUF_SIZE], int n) {
     char buf[INT_BUF_SIZE] = {0};
     int tmp = n;
-    size_t decimal_places = decimal_places_in_int(n);
-
-    for (size_t idx = 0; idx < decimal_places; idx++) {
-        buf[idx] = "0123456789abcdefghijklmnopqrstuvwxyz"[tmp % 10];
+    size_t decimal_places = 0;
+    do {
+        buf[decimal_places] = "0123456789abcdefghijklmnopqrstuvwxyz"[tmp % 10];
         tmp /= 10;
-    }
+        decimal_places++;
+    } while (tmp >= 1);
     buf[decimal_places] = 0;
 
     for (size_t i = 0; i < decimal_places; i++) {
@@ -46,6 +38,7 @@ static char *int_to_str(char result[INT_BUF_SIZE], int n) {
 
     return result;
 }
+
 // Destructively split a line of text in a vaguely-shell-like manner.
 static size_t shellsplit(char **pieces, char input[CHARS_PER_LINE]) {
     int in_dq_str = 0;
@@ -99,6 +92,7 @@ static size_t shellsplit(char **pieces, char input[CHARS_PER_LINE]) {
     }
     return num_pieces;
 }
+
 // Print the prompt (unless settings.no_prompt), return next line of input
 static char *prompt(char buf[CHARS_PER_LINE]) {
     if (!settings.no_prompt) {
@@ -106,11 +100,13 @@ static char *prompt(char buf[CHARS_PER_LINE]) {
     }
     return fgets(buf, CHARS_PER_LINE, stdin);
 }
+
 // Print msg to stderr and set $? to 1.
 static void fail(char *msg) {
     fputs(msg, stderr);
     setenv("?", "1", 1);
 }
+
 static void print_if_usage() {
     fail("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n");
 }
@@ -146,6 +142,7 @@ static int execute(size_t argc, char **argv) {
         return ret;
     }
 }
+
 // If whole word is ${X}, replace with the value of the env variable X.
 static void handle_env_vars(size_t argc, char **argv, char scratch[CHARS_PER_LINE]) {
     for (size_t i = 0; i < argc; i++) {
@@ -157,6 +154,7 @@ static void handle_env_vars(size_t argc, char **argv, char scratch[CHARS_PER_LIN
         }
     }
 }
+
 // Handle executing if/else statements.
 // Format is `if CONDITION then { CONSEQUENT } else { ALTERNATIVE }`.
 static int handle_if(size_t argc, char **argv) {
@@ -243,6 +241,7 @@ static int handle_builtins(size_t argc, char **argv) {
     }
     return 0; // not handled a builtin.
 }
+
 // Handle a line read via prompt().
 static void handle(char buf[CHARS_PER_LINE]) {
     static char intbuf[INT_BUF_SIZE] = {0};
