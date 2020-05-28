@@ -11,10 +11,10 @@
 #define LINE_BUF_SIZE (128 * 1024) // A line can be 128KB.
 #define SHELLSPLIT_MAX_PIECES 1000 // Number of words per line.
 
-typedef struct Settings_s {
+static struct Settings_s {
+    int no_prompt;
     int quick_exit;
-    int quiet;
-} Settings;
+} settings = {0};
 
 static size_t decimal_places_in_int(int n) {
     size_t decimal_places = 0;
@@ -100,8 +100,8 @@ static size_t shellsplit(char **pieces, char input[LINE_BUF_SIZE]) {
     return num_pieces;
 }
 
-static char *prompt(char buf[LINE_BUF_SIZE], Settings *settings) {
-    if (!settings->quiet) {
+static char *prompt(char buf[LINE_BUF_SIZE]) {
+    if (!settings.no_prompt) {
         fputs("$ ", stdout);
     }
     return fgets(buf, LINE_BUF_SIZE - 1, stdin);
@@ -129,13 +129,18 @@ static int execute(size_t argc, char **argv) {
         exit(1);
     } else {
         waitpid(child_pid, &status, WUNTRACED);
+
+        int ret = 0;
         if (WIFEXITED(status)) {
-            return WEXITSTATUS(status);
+            ret = WEXITSTATUS(status);
         } else if (WIFSIGNALED(status)) {
             // is there a more "correct" way to do this?
-            return 128 + WTERMSIG(status);
+            ret = 128 + WTERMSIG(status);
         }
-        return 0;
+        if (settings.quick_exit && ret != 0) {
+            exit(ret);
+        }
+        return ret;
     }
 }
 
@@ -225,8 +230,7 @@ static int handle_builtins(size_t argc, char **argv) {
     return 0; // not handled a builtin
 }
 
-static void handle(char buf[LINE_BUF_SIZE], Settings *settings) {
-    (void)settings;
+static void handle(char buf[LINE_BUF_SIZE]) {
     static char intbuf[INT_BUF_SIZE] = {0};
     static char tmp[LINE_BUF_SIZE] = {0};
 
@@ -253,13 +257,12 @@ static void handle(char buf[LINE_BUF_SIZE], Settings *settings) {
 
 int main(int argc, char **argv) {
     char buf[LINE_BUF_SIZE] = {0};
-    Settings settings = {0};
 
     int help = 0;
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] != '-') { continue; }
         for (size_t j = 1; j < strlen(argv[i]); j++) {
-            if (argv[i][j] == 'q') { settings.quiet = 1; }
+            if (argv[i][j] == 'q') { settings.no_prompt = 1; }
             if (argv[i][j] == 'x') { settings.quick_exit = 1; }
             if (argv[i][j] == 'h') { help = 1; break; }
         }
@@ -272,8 +275,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    while (prompt(buf, &settings) != NULL) {
-        handle(buf, &settings);
+    while (prompt(buf) != NULL) {
+        handle(buf);
     }
 
     return 0;
