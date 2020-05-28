@@ -4,7 +4,7 @@
 
 #include <stdio.h>      // fputs, fgets, perror, puts, stdout, stderr, printf (FIXME)
 #include <stdlib.h>     // exit, getenv, setenv
-#include <string.h>     // strlen, strncmp, strcmp (FIXME)
+#include <string.h>     // strlen, strncmp
 #include <sys/wait.h>   // waitpid, WEXITSTATUS, WIFEXITED, WIFSIGNALED, WTERMSIG, WUNTRACED
 #include <unistd.h>     // fork, execvp
 
@@ -176,7 +176,7 @@ static int handle_if(size_t argc, char **argv) {
     size_t altr_argc = 0;
     for (size_t i = 1; i < argc; i++) {
         if (in_altr) {
-            if (strcmp(argv[i], "}") == 0) {
+            if (strncmp(argv[i], "}", 2) == 0) {
                 argv[i] = NULL;
                 in_altr = 0;
                 if (argc > (i + 1)) {
@@ -188,7 +188,7 @@ static int handle_if(size_t argc, char **argv) {
             }
         }
         if (in_cons) {
-            if (strcmp(argv[i], "}") == 0) {
+            if (strncmp(argv[i], "}", 2) == 0) {
                 argv[i] = NULL;
                 alternative = argv + i + 3;
                 in_cons = 0;
@@ -198,7 +198,7 @@ static int handle_if(size_t argc, char **argv) {
             }
         }
         if (in_cond) {
-            if (strcmp(argv[i], "then") == 0) {
+            if (strncmp(argv[i], "then", 5) == 0) {
                 argv[i] = NULL;
                 consequent = argv + i + 2;
                 in_cond = 0;
