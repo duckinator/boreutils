@@ -4,7 +4,7 @@ Tests for POSIX-compatible `echo`.
 https://pubs.opengroup.org/onlinepubs/9699919799/utilities/echo.html
 """
 
-from helpers import check, check_version, run
+from helpers import check, check_version
 
 
 def test_version():

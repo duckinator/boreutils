@@ -3,12 +3,13 @@ Tests for `ish`.
 """
 
 import subprocess
-from helpers import check, run
+from helpers import run
 
 
 def ish(cmd):
     p1 = subprocess.Popen(["echo", cmd], stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["./bin/ish", "-q"], stdin=p1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p2 = subprocess.Popen(["./bin/ish", "-q"], stdin=p1.stdout,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     p1.stdout.close()
     output = p2.communicate()
     if output[0]:

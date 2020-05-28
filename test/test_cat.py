@@ -6,7 +6,7 @@ https://pubs.opengroup.org/onlinepubs/9699919799/utilities/cat.html
 
 from pathlib import Path
 import subprocess
-from helpers import check, check_version, run
+from helpers import check_version, run
 
 
 def test_version():
