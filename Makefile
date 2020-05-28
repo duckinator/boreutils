@@ -1,4 +1,5 @@
 CC := clang
+CLANG_CHECK := clang-check
 
 CFLAGS := -std=c11 -pedantic-errors -fdiagnostics-show-option \
 			-Werror -Weverything -D_XOPEN_SOURCE=700
@@ -14,6 +15,12 @@ docs: ${RSTFILES}
 bin/%: src/%.c
 	@mkdir -p bin/
 	${CC} ${CFLAGS} $< -o $@
+
+lint:
+	${CLANG_CHECK} $(filter %.c,${SRCFILES}) $(wildcard src/%.h)
+
+pylint:
+	pylint test
 
 test: all
 	pytest
