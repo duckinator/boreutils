@@ -2,7 +2,7 @@
 # master, staging, and trying branches. (So bors can use them.)
 use_compute_credits: $CIRRUS_USER_COLLABORATOR == 'true' || $CIRRUS_BRANCH == 'master' || $CIRRUS_BRANCH == 'staging' || $CIRRUS_BRANCH == 'trying'
 
-lint_task:
+pylint_task:
   container:
     image: python:3.7-slim
   install_script:
@@ -17,5 +17,7 @@ test_task:
   install_script:
     - "apt-get update && apt-get install -y clang make"
     - pip install pytest
+  lint_script:
+    - make lint
   script:
     - make test
