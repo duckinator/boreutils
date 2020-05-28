@@ -2,10 +2,10 @@
  * A shell-ish thing for running commands, which is compatible with nothing.
  */
 
-#include <stdio.h>      // fputs, fgets, stdin, stderr
-#include <stdlib.h>     // getenv, setenv
-#include <string.h>     // strncpy, strlen, strncmp
-#include <sys/wait.h>   // waitpid, WUNTRACED
+#include <stdio.h>      // fputs, fgets, perror, puts, stdout, stderr, printf (FIXME)
+#include <stdlib.h>     // exit, getenv, setenv
+#include <string.h>     // strlen, strncmp, strcmp (FIXME)
+#include <sys/wait.h>   // waitpid, WEXITSTATUS, WIFEXITED, WIFSIGNALED, WTERMSIG, WUNTRACED
 #include <unistd.h>     // fork, execvp
 
 #define LINE_BUF_SIZE (128 * 1024) // A line can be 128KB.
