@@ -16,11 +16,6 @@ typedef struct Settings_s {
     int quiet;
 } Settings;
 
-typedef struct ShellSplitResult_s {
-    char *pieces[SHELLSPLIT_MAX_PIECES];
-    size_t num_pieces;
-} ShellSplitResult;
-
 static size_t decimal_places_in_int(int n) {
     size_t decimal_places = 0;
     int tmp = n;
@@ -60,20 +55,20 @@ static char *int_to_str(char result[INT_BUF_SIZE], int n) {
     return result;
 }
 
-static void shellsplit(ShellSplitResult *result, char input[LINE_BUF_SIZE]) {
+static size_t shellsplit(char **pieces, char input[LINE_BUF_SIZE]) {
     int in_dq_str = 0;
     int in_sq_str = 0;
 
-    result->num_pieces = 1;
-    result->pieces[0] = input;
+    size_t num_pieces = 1;
+    pieces[0] = input;
     for (char *tmp = input; tmp < (input + LINE_BUF_SIZE); tmp++) {
         switch (*tmp) {
         case '"':
             if (!in_sq_str) {
                 if (in_dq_str == 0) {
                     in_dq_str = 1;
-                    result->num_pieces++;
-                    result->pieces[result->num_pieces - 1] = tmp + 1;
+                    num_pieces++;
+                    pieces[num_pieces - 1] = tmp + 1;
                 } else {
                     in_dq_str = 0;
                 }
@@ -84,8 +79,8 @@ static void shellsplit(ShellSplitResult *result, char input[LINE_BUF_SIZE]) {
             if (!in_dq_str) {
                 if (in_sq_str == 0) {
                     in_sq_str = 1;
-                    result->num_pieces++;
-                    result->pieces[result->num_pieces - 1] = tmp + 1;
+                    num_pieces++;
+                    pieces[num_pieces - 1] = tmp + 1;
                 } else {
                     in_sq_str = 0;
                 }
@@ -95,13 +90,14 @@ static void shellsplit(ShellSplitResult *result, char input[LINE_BUF_SIZE]) {
         case ' ':
             if (in_sq_str == 0 && in_dq_str == 0 && *(tmp + 1) != ' ' &&
                     *(tmp + 1) != '\'' && *(tmp + 1) != '"') {
-                result->num_pieces++;
-                result->pieces[result->num_pieces - 1] = tmp + 1;
+                num_pieces++;
+                pieces[num_pieces - 1] = tmp + 1;
                 *tmp = '\0';
             }
             break;
         }
     }
+    return num_pieces;
 }
 
 static char *prompt(char buf[LINE_BUF_SIZE], Settings *settings) {
@@ -111,9 +107,9 @@ static char *prompt(char buf[LINE_BUF_SIZE], Settings *settings) {
     return fgets(buf, LINE_BUF_SIZE - 1, stdin);
 }
 
-static int handle_builtins(ShellSplitResult *result);
-static int execute(ShellSplitResult *result) {
-    if (handle_builtins(result)) {
+static int handle_builtins(size_t argc, char **argv);
+static int execute(size_t argc, char **argv) {
+    if (handle_builtins(argc, argv)) {
         return 0;
     }
 
@@ -121,42 +117,39 @@ static int execute(ShellSplitResult *result) {
     int status;
 
     if (child_pid == 0) {
-        if (execvp(result->pieces[0], result->pieces) == -1) {
+        if (execvp(argv[0], argv) == -1) {
             perror("-ish");
         }
         exit(1);
     } else {
         waitpid(child_pid, &status, WUNTRACED);
-
-        int ret = 0;
         if (WIFEXITED(status)) {
-            ret = WEXITSTATUS(status);
+            return WEXITSTATUS(status);
         } else if (WIFSIGNALED(status)) {
             // is there a more "correct" way to do this?
-            ret = 128 + WTERMSIG(status);
+            return 128 + WTERMSIG(status);
         }
-
         return 0;
     }
 }
 
-static void handle_env_vars(ShellSplitResult *result, char scratch[LINE_BUF_SIZE]) {
-    for (size_t i = 0; i < result->num_pieces; i++) {
-        char *tmp = result->pieces[i];
+static void handle_env_vars(size_t argc, char **argv, char scratch[LINE_BUF_SIZE]) {
+    for (size_t i = 0; i < argc; i++) {
+        char *tmp = argv[i];
         if (tmp[0] == '$' && tmp[1] == '{' && tmp[strlen(tmp) - 1] == '}') {
             strncpy(scratch, tmp + 2, LINE_BUF_SIZE);
             scratch[strlen(scratch) - 1] = '\0';
-            result->pieces[i] = getenv(scratch);
+            argv[i] = getenv(scratch);
         }
     }
 }
 
-static int handle_builtins(ShellSplitResult *result) {
-    if (strncmp(result->pieces[0], "exit", 5) == 0) {
-        if (result->num_pieces == 1) {
+static int handle_builtins(size_t argc, char **argv) {
+    if (strncmp(argv[0], "exit", 5) == 0) {
+        if (argc == 1) {
             exit(0);
         } else {
-            printf("\n\nTODO: Set exit status=%s\n", result->pieces[1]);
+            printf("\n\nTODO: Set exit status=%s\n", argv[1]);
             exit(123);
         }
     }
@@ -178,11 +171,11 @@ static void handle(char buf[LINE_BUF_SIZE], Settings *settings) {
         return;
     }
 
-    ShellSplitResult result = {0};
-    shellsplit(&result, buf);
-    handle_env_vars(&result, tmp);
+    char *argv[SHELLSPLIT_MAX_PIECES + 1] = {0};
+    size_t argc = shellsplit(argv, buf);
+    handle_env_vars(argc, argv, tmp);
 
-    int status = execute(&result);
+    int status = execute(argc, argv);
     setenv("?", int_to_str(intbuf, status), 1);
 }
 
