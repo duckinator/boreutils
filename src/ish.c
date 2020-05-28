@@ -115,10 +115,14 @@ static char *prompt(char buf[LINE_BUF_SIZE]) {
     return fgets(buf, LINE_BUF_SIZE, stdin);
 }
 
-static int print_if_usage() {
-    fputs("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n", stderr);
+static int fail(char *msg) {
+    fputs(msg, stderr);
     setenv("?", "1", 1);
     return 1;
+}
+
+static int print_if_usage() {
+    return fail("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n");
 }
 
 static int handle_builtins(size_t argc, char **argv);
