@@ -2,7 +2,7 @@
  * A shell-ish thing for running commands, which is compatible with nothing.
  */
 
-#include <stdio.h>      // fputs, fgets, perror, puts, stdout, stderr, printf (FIXME)
+#include <stdio.h>      // fputs, fgets, perror, stdout, stderr
 #include <stdlib.h>     // exit, getenv, setenv
 #include <string.h>     // strlen, strncmp
 #include <sys/wait.h>   // waitpid, WEXITSTATUS, WIFEXITED, WIFSIGNALED, WTERMSIG, WUNTRACED
@@ -226,7 +226,8 @@ static int handle_builtins(size_t argc, char **argv) {
         if (argc == 1) {
             exit(0);
         } else {
-            printf("\n\nTODO: Set exit status=%s\n", argv[1]);
+            fputs("\nTODO: Set exit status to ", stdout);
+            fputs(argv[1], stdout);
             exit(123);
         }
     } else if (strncmp(argv[0], "if", 3) == 0) {
@@ -285,10 +286,10 @@ int main(int argc, char **argv) {
         }
     }
     if (help) {
-        puts("Usage: ish [-q] [-x] [-h]");
-        puts("-q    Quiet");
-        puts("-x    Exit immediately on error");
-        puts("-h    Print help text and exit");
+        fputs("Usage: ish [-q] [-x] [-h]\n", stdout);
+        fputs("-q    Quiet\n", stdout);
+        fputs("-x    Exit immediately on error\n", stdout);
+        fputs("-h    Print help text and exit\n", stdout);
         return 1;
     }
 
