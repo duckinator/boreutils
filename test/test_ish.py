@@ -63,6 +63,8 @@ def test_strings():
     assert ish('echo \'hello, \'"world!"')['stdout'] == "hello, world!\n"
     assert ish("echo 'hello, 'world!")['stdout'] == "hello, world!\n"
     assert ish('echo "hello, "world!')['stdout'] == "hello, world!\n"
+    assert ish('echo "owo \'wats\' this"')['stdout'] == "owo 'wats' this\n"
+    assert ish('echo \'owo "wats" this\'')['stdout'] == 'owo "wats" this\n'
 
 
 def test_echo():
