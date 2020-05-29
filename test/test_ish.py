@@ -69,6 +69,7 @@ def test_strings():
 
 def test_echo():
     """Test a basic echo command works."""
+    assert ish('  echo hello, world!')['stdout'] == "hello, world!\n"
     assert ish('echo hello, world!')['stdout'] == "hello, world!\n"
     assert ish('echo "hello," "world!"')['stdout'] == "hello, world!\n"
 
