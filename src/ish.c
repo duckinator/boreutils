@@ -42,23 +42,22 @@ static char *int_to_str(char result[INT_BUF_SIZE], int n) {
 
 // Destructively split a line of text in a vaguely-shell-like manner.
 static size_t shellsplit(char **pieces, char input[CHARS_PER_LINE]) {
-    char *tmp = input;
-    while (tmp[0] == ' ') { tmp++; } // Eat leading spaces.
     int in_squote = 0; // To track if we're in a single-quoted string.
     int in_dquote = 0; // To track if we're in a double-quoted string.
-
-    size_t num_pieces = 1;
-    pieces[0] = tmp;
-
     char buf[CHARS_PER_LINE] = {0}; // Temporary buffer.
     size_t input_idx = 0;
     size_t buf_idx = 0;
-    size_t len = strlen(input);
-    for (; input_idx < len; input_idx++) {
+    size_t num_pieces = 1;
+    while (input[input_idx] == ' ') { // Eat leading spaces.
+        input_idx++;
+        buf_idx++;
+    }
+    pieces[0] = input + buf_idx;
+    for (; input_idx < strlen(input); input_idx++) {
         int is_dquote = (input[input_idx] == '"');
         int is_squote = (input[input_idx] == '\'');
         int is_space = (input[input_idx] == ' ');
-        int new_token = !in_dquote && !in_squote && is_space;
+        int new_token = (!in_dquote && !in_squote && is_space);
         int consume = !(is_dquote || is_squote || is_space) ||
             (in_dquote && !is_dquote) || (in_squote && !is_squote);
 
@@ -66,9 +65,11 @@ static size_t shellsplit(char **pieces, char input[CHARS_PER_LINE]) {
         if (is_squote && !in_dquote) { in_squote = !in_squote; }
         if (consume)   { buf[buf_idx++] = input[input_idx]; }
         if (new_token) {
-            if (pieces[num_pieces - 1] != input + buf_idx) {
-                num_pieces++;
+            while (input[input_idx + 1] == ' ') { // Eat extra spaces.
+                input_idx++;
+                buf_idx++;
             }
+            num_pieces++;
             pieces[num_pieces - 1] = input + buf_idx + 1;
             buf[buf_idx] = '\0';
             buf_idx++;
