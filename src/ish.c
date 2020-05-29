@@ -58,15 +58,14 @@ static size_t shellsplit(char **pieces, char input[CHARS_PER_LINE]) {
         int is_dquote = (input[input_idx] == '"');
         int is_squote = (input[input_idx] == '\'');
         int is_space = (input[input_idx] == ' ');
-        int consume_character = (in_dquote || in_squote) ||
-            !(is_dquote || is_squote || is_space);
+        int new_token = !in_dquote && !in_squote && is_space;
+        int consume = !(is_dquote || is_squote || is_space) ||
+            (in_dquote && !is_dquote) || (in_squote && !is_squote);
 
-        if (is_dquote) { in_dquote = !in_dquote; }
-        else if (is_squote) { in_squote = !in_squote; }
-        else if (consume_character) {
-            buf[buf_idx] = input[input_idx];
-            buf_idx++;
-        } else if (is_space) { // Start a new token.
+        if (is_dquote && !is_squote) { in_dquote = !in_dquote; }
+        if (is_squote && !is_dquote) { in_squote = !in_squote; }
+        if (consume)   { buf[buf_idx++] = input[input_idx]; }
+        if (new_token) {
             if (pieces[num_pieces - 1] != input + buf_idx) {
                 num_pieces++;
             }
