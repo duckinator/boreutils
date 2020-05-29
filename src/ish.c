@@ -43,29 +43,22 @@ static char *int_to_str(char result[INT_BUF_SIZE], int n) {
 // Destructively split a line of text in a vaguely-shell-like manner.
 static size_t shellsplit(char **pieces, char input[CHARS_PER_LINE]) {
     char *tmp = input;
-    while (tmp[0] == ' ') {
-        tmp++;
-    }
-
-    int is_dquote = 0; // Is current character a double quote?
-    int is_squote = 0; // Is current character a single quote?
-    int is_space = 0;  // Is current character a space?
-    int in_squote = 0; // Are we in a single-quoted string?
-    int in_dquote = 0; // Are we in a double-quoted string?
-    int consume_character = 0; // Do we append this char to the buffer?
+    while (tmp[0] == ' ') { tmp++; } // Eat leading spaces.
+    int in_squote = 0; // To track if we're in a single-quoted string.
+    int in_dquote = 0; // To track if we're in a double-quoted string.
 
     size_t num_pieces = 1;
     pieces[0] = tmp;
 
     char buf[CHARS_PER_LINE] = {0}; // Temporary buffer.
-    size_t input_idx = 0; // Current index into `input`.
-    size_t buf_idx = 0; // Current index into `buf`.
+    size_t input_idx = 0;
+    size_t buf_idx = 0;
     size_t len = strlen(input);
-    for (; input_idx < len; input_idx++) { // Loop through entire input.
-        is_dquote = (input[input_idx] == '"');
-        is_squote = (input[input_idx] == '\'');
-        is_space = (input[input_idx] == ' ');
-        consume_character = !is_dquote && !is_squote && (!is_space || in_dquote || in_squote);
+    for (; input_idx < len; input_idx++) {
+        int is_dquote = (input[input_idx] == '"');
+        int is_squote = (input[input_idx] == '\'');
+        int is_space = (input[input_idx] == ' ');
+        int consume_character = !is_dquote && !is_squote && (!is_space || in_dquote || in_squote);
 
         if (in_dquote && is_dquote) { // End double quote.
             in_dquote = 0;
