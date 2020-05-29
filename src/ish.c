@@ -42,55 +42,54 @@ static char *int_to_str(char result[INT_BUF_SIZE], int n) {
 
 // Destructively split a line of text in a vaguely-shell-like manner.
 static size_t shellsplit(char **pieces, char input[CHARS_PER_LINE]) {
-    int in_dq_str = 0;
-    int in_sq_str = 0;
-
     char *tmp = input;
     while (tmp[0] == ' ') {
         tmp++;
     }
 
+    int is_dquote = 0; // Is current character a double quote?
+    int is_squote = 0; // Is current character a single quote?
+    int is_space = 0;  // Is current character a space?
+    int in_squote = 0; // Are we in a single-quoted string?
+    int in_dquote = 0; // Are we in a double-quoted string?
+    int consume_character = 0; // Do we append this char to the buffer?
+
     size_t num_pieces = 1;
     pieces[0] = tmp;
 
-    for (; tmp < (input + CHARS_PER_LINE) && *tmp; tmp++) {
-        switch (*tmp) {
-        case '"':
-            if (!in_sq_str) {
-                if (in_dq_str == 0) {
-                    in_dq_str = 1;
-                    num_pieces++;
-                    pieces[num_pieces - 1] = tmp + 1;
-                } else {
-                    in_dq_str = 0;
-                }
-                *tmp = '\0';
+    char buf[CHARS_PER_LINE] = {0}; // Temporary buffer.
+    size_t input_idx = 0; // Current index into `input`.
+    size_t buf_idx = 0; // Current index into `buf`.
+    size_t len = strlen(input);
+    for (; input_idx < len; input_idx++) { // Loop through entire input.
+        is_dquote = (input[input_idx] == '"');
+        is_squote = (input[input_idx] == '\'');
+        is_space = (input[input_idx] == ' ');
+        consume_character = !is_dquote && !is_squote && (!is_space || in_dquote || in_squote);
+
+        if (in_dquote && is_dquote) { // End double quote.
+            in_dquote = 0;
+        } else if (in_squote && is_squote) { // End single quote.
+            in_squote = 0;
+        } else if (!in_dquote && is_dquote) { // Start double quote.
+            in_dquote = 1;
+        } else if (!in_squote && is_squote) { // Start single quote.
+            in_squote = 1;
+        } else if (consume_character) { // Consume the character.
+            buf[buf_idx] = input[input_idx];
+            buf_idx++;
+        } else if (is_space) { // Start a new token.
+            if (pieces[num_pieces - 1] != input + buf_idx) {
+                num_pieces++;
             }
-            break;
-        case '\'':
-            if (!in_dq_str) {
-                if (in_sq_str == 0) {
-                    in_sq_str = 1;
-                    num_pieces++;
-                    pieces[num_pieces - 1] = tmp + 1;
-                } else {
-                    in_sq_str = 0;
-                }
-                *tmp = '\0';
-            }
-            break;
-        case ' ':
-            if (in_sq_str == 0 && in_dq_str == 0) {
-                if (*(tmp + 1) != ' ' &&
-                    *(tmp + 1) != '\'' && *(tmp + 1) != '"') {
-                    num_pieces++;
-                    pieces[num_pieces - 1] = tmp + 1;
-                }
-                *tmp = '\0';
-            }
-            break;
+            pieces[num_pieces - 1] = input + buf_idx + 1;
+            buf[buf_idx] = '\0';
+            buf_idx++;
         }
     }
+    buf[buf_idx] = '\0';
+    memcpy(input, buf, buf_idx + 1);
+    memset(buf, 1, buf_idx + 1); // To make memory problems more obvious.
     return num_pieces;
 }
 
