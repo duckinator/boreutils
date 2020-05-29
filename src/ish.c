@@ -232,7 +232,7 @@ static int handle_builtins(size_t argc, char **argv) {
         }
         return 1; // handled by a builtin
     } else if (strncmp(argv[0], "setenv", 7) == 0) { // setenv builtin
-        if (argc < 3) {
+        if (argc != 3) {
             fail("Usage: setenv NAME VALUE\n");
             return 1; // handled by a builtin.
         }
