@@ -5,14 +5,23 @@
 #include <stdio.h>      // fputs, fgets, perror, stdout, stderr
 #include <stdlib.h>     // exit, getenv, setenv
 #include <string.h>     // strlen, strncmp
+#include <sys/types.h>  // pid_t
 #include <sys/wait.h>   // waitpid, WEXITSTATUS, WIFEXITED, WIFSIGNALED, WTERMSIG, WUNTRACED
-#include <unistd.h>     // fork, execvp
+#include <unistd.h>     // close, dup2, execvp, fork
 
 #define VERSION "0.0.1"
 #define INT_BUF_SIZE 22 // 20 (max digits in int64) + 1 (sign) + 1 (null)
-#define CHARS_PER_LINE (128 * 1024)         // Max chars per line of input
-// Can't have more chunks than repeating "X " until buffer is full.
-#define PARTS_PER_LINE (CHARS_PER_LINE / 2) // Max words per line.
+#define CHARS_PER_LINE (32 * 1024) // Max chars per line of input
+#define PARTS_PER_LINE 512         // Max words per line.
+#define PIPELINE_PARTS 32          // Max pipe segments per line.
+
+typedef char *PipelineToken;
+typedef struct PipelinePart_s {
+    PipelineToken tokens[PARTS_PER_LINE + 1];
+} PipelinePart;
+typedef struct Pipeline_s {
+    PipelinePart commands[PIPELINE_PARTS + 1];
+} Pipeline;
 
 // `settings` variable holds all the settings.
 static struct Settings_s {
@@ -41,7 +50,7 @@ static char *int_to_str(char result[INT_BUF_SIZE], int n) {
 }
 
 // Destructively split a line of text in a vaguely-shell-like manner.
-static size_t shellsplit(char **pieces, char input[CHARS_PER_LINE]) {
+static size_t shellsplit(Pipeline *pipeline, char input[CHARS_PER_LINE]) {
     int in_squote = 0; // To track if we're in a single-quoted string.
     int in_dquote = 0; // To track if we're in a double-quoted string.
     char buf[CHARS_PER_LINE] = {0}; // Temporary buffer.
@@ -52,15 +61,25 @@ static size_t shellsplit(char **pieces, char input[CHARS_PER_LINE]) {
         input_idx++;
         buf_idx++;
     }
-    pieces[0] = input + buf_idx;
+    size_t pipeline_idx = 0;
+    pipeline->commands[pipeline_idx].tokens[0] = input + buf_idx;
     for (; input_idx < strlen(input); input_idx++) {
+        PipelinePart *command = &pipeline->commands[pipeline_idx];
+        int is_pipe = (input[input_idx] == '|');
         int is_dquote = (input[input_idx] == '"');
         int is_squote = (input[input_idx] == '\'');
         int is_space = (input[input_idx] == ' ');
+        int break_pipe = !in_dquote && !in_squote && is_pipe;
         int new_token = !in_dquote && !in_squote && is_space;
-        int consume = !(is_dquote || is_squote || is_space) ||
+        int consume = !(is_dquote || is_squote || is_space || is_pipe) ||
             (in_dquote && !is_dquote) || (in_squote && !is_squote);
 
+        if (break_pipe) {
+            command->tokens[num_pieces - 1] = NULL;
+            num_pieces = 0;
+            pipeline_idx++;
+            command = &pipeline->commands[pipeline_idx];
+        }
         if (is_dquote && !in_squote) { in_dquote = !in_dquote; }
         if (is_squote && !in_dquote) { in_squote = !in_squote; }
         if (consume) { // Consume the token.
@@ -73,7 +92,7 @@ static size_t shellsplit(char **pieces, char input[CHARS_PER_LINE]) {
                 buf_idx++;
             }
             num_pieces++;
-            pieces[num_pieces - 1] = input + buf_idx + 1;
+            command->tokens[num_pieces - 1] = input + buf_idx + 1;
             buf[buf_idx] = '\0';
             buf_idx++;
         }
@@ -247,10 +266,9 @@ static void handle(char buf[CHARS_PER_LINE]) {
     if (strlen(buf) == 0) { // If it was _just_ a newline, bail.
         return;
     }
-    // argv is a slot bigger than needed, and set to null bytes, so execvp
-    // handles it better later on.
-    char *argv[PARTS_PER_LINE + 1] = {0};
-    size_t argc = shellsplit(argv, buf); // tokenize the line.
+    Pipeline pipeline = {0};
+    size_t argc = shellsplit(&pipeline, buf); // tokenize the line.
+    char **argv = pipeline.commands[0].tokens;
     handle_env_vars(argc, argv, tmp); // handle references to env vars.
 
     int status = execute(argc, argv); // execute the line.
