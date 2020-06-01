@@ -94,4 +94,4 @@ def test_env():
 
 def test_pipes():
     """Test that pipes work properly."""
-    assert ish("echo hello, world '|' | sed 's/|/!/' | sed 's/ !/!/' | tr l w\n")['stdout'] == "hewoo, worwd!\n"
+    assert ish("echo hello, world '|' | sed 's/|/!/' | sed 's/ !/!/' | tr l w\n")['stdout'] == "hewwo, worwd!\n"

@@ -18,10 +18,12 @@
 typedef char *PipelineToken;
 typedef struct PipelinePart_s {
     PipelineToken tokens[PARTS_PER_LINE + 1];
+    size_t argc;
 } PipelinePart;
 typedef struct Pipeline_s {
     PipelinePart commands[PIPELINE_PARTS + 1];
 } Pipeline;
+static int execute(Pipeline *pipeline);
 
 // `settings` variable holds all the settings.
 static struct Settings_s {
@@ -29,6 +31,55 @@ static struct Settings_s {
     int quick_exit;
 } settings = {0};
 
+// Print the prompt (unless settings.no_prompt), return next line of input
+static char *prompt(char buf[CHARS_PER_LINE]) {
+    if (!settings.no_prompt) {
+        fputs("$ ", stdout);
+    }
+    return fgets(buf, CHARS_PER_LINE, stdin);
+}
+static void fail(char *msg) { // Print msg to stderr and set $? to 1.
+    fputs(msg, stderr);
+    setenv("?", "1", 1);
+}
+static void print_if_usage() { // Explain how if statements work.
+    fail("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n");
+}
+static void closefd(int fd) {
+    if (close(fd) == -1) {
+        perror("close");
+    }
+}
+static void redirect(int oldfd, int newfd) { // Move oldfd to newfd.
+    if (oldfd == newfd) {
+        return;
+    }
+    if (dup2(oldfd, newfd) == -1) {
+        perror("dup2");
+        exit(1);
+    }
+    closefd(oldfd); // successfully redirected
+}
+// If whole word is ${X}, replace with the value of the env variable X.
+static void expand_env_vars(PipelinePart *command, char scratch[CHARS_PER_LINE]) {
+    for (size_t i = 0; i < command->argc; i++) {
+        char *tmp = command->tokens[i];
+        if (tmp[0] == '$' && tmp[1] == '{' && tmp[strlen(tmp) - 1] == '}') {
+            strncpy(scratch, tmp + 2, CHARS_PER_LINE);
+            scratch[strlen(scratch) - 1] = '\0';
+            command->tokens[i] = getenv(scratch);
+        }
+    }
+}
+static int execute_a(size_t argc, char **argv) {
+    Pipeline pipeline = {0};
+    for (size_t i = 0; i < argc; i++) {
+        pipeline.commands[0].tokens[i] = argv[i];
+    }
+    pipeline.commands[0].tokens[argc] = NULL;
+    pipeline.commands[1].tokens[0] = NULL;
+    return execute(&pipeline);
+}
 // Convert an int to a char*, with fixed-size buffers.
 static char *int_to_str(char result[INT_BUF_SIZE], int n) {
     char buf[INT_BUF_SIZE] = {0};
@@ -76,6 +127,7 @@ static size_t shellsplit(Pipeline *pipeline, char input[CHARS_PER_LINE]) {
 
         if (break_pipe) {
             command->tokens[num_pieces - 1] = NULL;
+            command->argc = num_pieces;
             num_pieces = 0;
             pipeline_idx++;
             command = &pipeline->commands[pipeline_idx];
@@ -97,76 +149,14 @@ static size_t shellsplit(Pipeline *pipeline, char input[CHARS_PER_LINE]) {
             buf_idx++;
         }
     }
+    pipeline->commands[pipeline_idx].argc = num_pieces;
     buf[buf_idx] = '\0';
     memcpy(input, buf, buf_idx + 1);
     memset(buf, 1, buf_idx + 1); // To make memory problems more obvious.
     return num_pieces;
 }
-
-// Print the prompt (unless settings.no_prompt), return next line of input
-static char *prompt(char buf[CHARS_PER_LINE]) {
-    if (!settings.no_prompt) {
-        fputs("$ ", stdout);
-    }
-    return fgets(buf, CHARS_PER_LINE, stdin);
-}
-
-// Print msg to stderr and set $? to 1.
-static void fail(char *msg) {
-    fputs(msg, stderr);
-    setenv("?", "1", 1);
-}
-static void print_if_usage() {
-    fail("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n");
-}
-
-static int handle_builtins(size_t argc, char **argv);
-// Attempt to execute a command and return the status code.
-static int execute(size_t argc, char **argv) {
-    if (handle_builtins(argc, argv)) {
-        return 0;
-    }
-
-    pid_t child_pid = fork();
-    int status;
-
-    if (child_pid == 0) {
-        if (execvp(argv[0], argv) == -1) {
-            perror("-ish");
-        }
-        exit(1);
-    } else {
-        waitpid(child_pid, &status, WUNTRACED);
-
-        int ret = 0;
-        if (WIFEXITED(status)) {
-            ret = WEXITSTATUS(status);
-        } else if (WIFSIGNALED(status)) {
-            // is there a more "correct" way to do this?
-            ret = 128 + WTERMSIG(status);
-        }
-        if (settings.quick_exit && ret != 0) {
-            exit(ret);
-        }
-        return ret;
-    }
-}
-
-// If whole word is ${X}, replace with the value of the env variable X.
-static void handle_env_vars(size_t argc, char **argv, char scratch[CHARS_PER_LINE]) {
-    for (size_t i = 0; i < argc; i++) {
-        char *tmp = argv[i];
-        if (tmp[0] == '$' && tmp[1] == '{' && tmp[strlen(tmp) - 1] == '}') {
-            strncpy(scratch, tmp + 2, CHARS_PER_LINE);
-            scratch[strlen(scratch) - 1] = '\0';
-            argv[i] = getenv(scratch);
-        }
-    }
-}
-
-// Handle executing if/else statements.
-// Format is `if CONDITION then { CONSEQUENT } else { ALTERNATIVE }`.
-static int handle_if(size_t argc, char **argv) {
+// Handle executing if statements
+static int execute_if(size_t argc, char **argv) {
     char **condition = argv + 1; // Mark start of command in the condition
     char **consequent = NULL;
     char **alternative = NULL;
@@ -216,45 +206,113 @@ static int handle_if(size_t argc, char **argv) {
         return 1; // In theory, this means it got invalid arguments.
     }
     // Execute the `condition` command, and react accordingly.
-    if (execute(cond_argc, condition) == 0) { // If it run successfully...
-        return execute(cons_argc, consequent); // Run the consequent.
+    if (execute_a(cond_argc, condition) == 0) { // If it runs successfully...
+        return execute_a(cons_argc, consequent); // Run the consequent.
     } else {
-        return execute(altr_argc, alternative); // Run the alternative.
+        return execute_a(altr_argc, alternative); // Run the alternative.
     }
 }
-
-static int handle_builtins(size_t argc, char **argv) {
-    if (strncmp(argv[0], "exit", 5) == 0) { // exit builtin
-        if (argc == 1) { // `exit` with no args is equivalent to `exit 0`.
+// Handle execution of builtin commands.
+static int handle_builtins(Pipeline *pipeline) {
+    PipelinePart *command = &pipeline->commands[0];
+    if (strncmp(command->tokens[0], "exit", 5) == 0) { // exit builtin
+        if (command->argc == 1) { // `exit` with no args is equivalent to `exit 0`.
             exit(0);
         } else { // `exit <value>` =>
             fputs("\nTODO: Set exit status to ", stdout);
-            fputs(argv[1], stdout);
+            fputs(command->tokens[1], stdout);
             fputs("\n", stdout);
             exit(123);
         }
-    } else if (strncmp(argv[0], "if", 3) == 0) { // if builtin
-        if (argc >= 10) { // if needs 10+ args.
-            handle_if(argc, argv); // actually apply the if/else statement
+    } else if (strncmp(command->tokens[0], "if", 3) == 0) { // if builtin
+        if (command->argc >= 10) { // if needs 10+ args.
+            execute_if(command->argc, command->tokens); // actually run the if/else statement
         } else { // if there's not enough args, just print `if` usage info
             print_if_usage();
         }
         return 1; // handled by a builtin
-    } else if (strncmp(argv[0], "setenv", 7) == 0) { // setenv builtin
-        if (argc != 3) {
+    } else if (strncmp(command->tokens[0], "setenv", 7) == 0) { // setenv builtin
+        if (command->argc != 3) {
             fail("Usage: setenv NAME VALUE\n");
             return 1; // handled by a builtin.
         }
-        setenv(argv[1], argv[2], 1 /* allow overwriting the value */);
+        setenv(command->tokens[1], command->tokens[2], 1 /* overwrite */);
         return 1; // handled by a builtin.
     }
     return 0; // not handled a builtin.
 }
+static void run(char **argv, int in, int out) {
+    redirect(in, STDIN_FILENO);   /* <&in  : child reads from in */
+    redirect(out, STDOUT_FILENO); /* >&out : child writes to out */
 
+    if (execvp(argv[0], argv) == -1) {
+        perror("run");
+    }
+    exit(1);
+}
+static void run_pipeline(Pipeline *pipeline) {
+    static char tmp[CHARS_PER_LINE] = {0};
+    int in = STDIN_FILENO; // the first command reads this
+    for (size_t i = 0; pipeline->commands[i].tokens[0] != NULL; i++) {
+        if (pipeline->commands[i + 1].tokens[0] == NULL) {
+            PipelinePart *command = &pipeline->commands[i];
+            expand_env_vars(command, tmp);
+            run(command->tokens, in, STDOUT_FILENO); // command < in
+        }
+        int fd[2]; // in/out pipe ends
+        if (pipe(fd) == -1) {
+            perror("pipe");
+            exit(1);
+        }
+        pid_t pid = fork(); // child's pid
+        if (pid == -1) {
+            perror("fork");
+            exit(1);
+        }
+
+        if (pid == 0) { // run command[i] in the child process
+            closefd(fd[0]); // close unused read end of the pipe
+            PipelinePart *command = &pipeline->commands[i];
+            run(command->tokens, in, fd[1]); // command < in > fd[1]
+        } else { // parent
+            closefd(fd[1]); // close unused write end of the pipe
+            closefd(in);    // close unused read end of the previous pipe
+            in = fd[0]; // the next command reads from here
+        }
+    }
+}
+// Attempt to execute a command and return the status code.
+//static int execute(size_t argc, char **argv) {
+static int execute(Pipeline *pipeline) {
+    if (handle_builtins(pipeline)) {
+        return 0;
+    }
+
+    pid_t child_pid = fork();
+    int status;
+
+    if (child_pid == 0) {
+        run_pipeline(pipeline);
+        exit(1);
+    } else {
+        waitpid(child_pid, &status, WUNTRACED);
+
+        int ret = 0;
+        if (WIFEXITED(status)) {
+            ret = WEXITSTATUS(status);
+        } else if (WIFSIGNALED(status)) {
+            // is there a more "correct" way to do this?
+            ret = 128 + WTERMSIG(status);
+        }
+        if (settings.quick_exit && ret != 0) {
+            exit(ret);
+        }
+        return ret;
+    }
+}
 // Handle a line read via prompt().
 static void handle(char buf[CHARS_PER_LINE]) {
     static char intbuf[INT_BUF_SIZE] = {0};
-    static char tmp[CHARS_PER_LINE] = {0};
 
     size_t len = strlen(buf);
     if (len == 0) { // If it's empty, bail.
@@ -267,11 +325,8 @@ static void handle(char buf[CHARS_PER_LINE]) {
         return;
     }
     Pipeline pipeline = {0};
-    size_t argc = shellsplit(&pipeline, buf); // tokenize the line.
-    char **argv = pipeline.commands[0].tokens;
-    handle_env_vars(argc, argv, tmp); // handle references to env vars.
-
-    int status = execute(argc, argv); // execute the line.
+    shellsplit(&pipeline, buf); // tokenize the line.
+    int status = execute(&pipeline);
     setenv("?", int_to_str(intbuf, status), 1); 
 }
 
