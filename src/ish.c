@@ -135,7 +135,6 @@ static size_t shellsplit(Pipeline *pipeline, char input[CHARS_PER_LINE]) {
     pipeline->commands[pipeline_idx].argc = num_pieces;
     buf[buf_idx] = '\0';
     memcpy(input, buf, buf_idx + 1);
-    memset(buf, 1, buf_idx + 1); // To make memory problems more obvious.
     return num_pieces;
 }
 // Helper function: convert argc+argv to a Pipeline, then execute it.
