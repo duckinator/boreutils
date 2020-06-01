@@ -24,7 +24,7 @@ typedef struct Pipeline_s {
     PipelinePart commands[PIPELINE_PARTS + 1];
 } Pipeline;
 static int execute(Pipeline *pipeline);
-static struct Settings_s { // `settings` variabable holds all the settings
+static struct Settings_s { // `settings` variable holds all the settings.
     int no_prompt;
     int quick_exit;
 } settings = {0};
@@ -35,7 +35,7 @@ static char *prompt(char buf[CHARS_PER_LINE]) {
     }
     return fgets(buf, CHARS_PER_LINE, stdin);
 }
-static void fail(char *msg) { // Print msg to stderr and set $? to 1.
+static void fail(char *msg) { // Print `msg` to stderr and set $? to 1.
     fputs(msg, stderr);
     setenv("?", "1", 1);
 }
@@ -55,7 +55,7 @@ static void redirect(int oldfd, int newfd) { // Move oldfd to newfd.
     }
     closefd(oldfd); // successfully redirected
 }
-// If whole word is ${X}, replace with the value of the env variable X.
+// If whole token is "${X}", replace with the value of the env variable X.
 static void expand_env_vars(PipelinePart *command, char scratch[CHARS_PER_LINE]) {
     for (size_t i = 0; i < command->argc && command->tokens[i]; i++) {
         char *tmp = command->tokens[i];
@@ -65,15 +65,6 @@ static void expand_env_vars(PipelinePart *command, char scratch[CHARS_PER_LINE])
             command->tokens[i] = getenv(scratch);
         }
     }
-}
-static int execute_a(size_t argc, char **argv) {
-    Pipeline pipeline = {0};
-    for (size_t i = 0; i < argc; i++) {
-        pipeline.commands[0].tokens[i] = argv[i];
-    }
-    pipeline.commands[0].tokens[argc] = NULL;
-    pipeline.commands[1].tokens[0] = NULL;
-    return execute(&pipeline);
 }
 // Convert an int to a char*, with fixed-size buffers.
 static char *int_to_str(char result[INT_BUF_SIZE], int n) {
@@ -147,8 +138,17 @@ static size_t shellsplit(Pipeline *pipeline, char input[CHARS_PER_LINE]) {
     memset(buf, 1, buf_idx + 1); // To make memory problems more obvious.
     return num_pieces;
 }
-// Handle executing if statements
-static int execute_if(size_t argc, char **argv) {
+// Helper function: convert argc+argv to a Pipeline, then execute it.
+static int execute_a(size_t argc, char **argv) {
+    Pipeline pipeline = {0};
+    for (size_t i = 0; i < argc; i++) {
+        pipeline.commands[0].tokens[i] = argv[i];
+    }
+    pipeline.commands[0].tokens[argc] = NULL;
+    pipeline.commands[1].tokens[0] = NULL;
+    return execute(&pipeline);
+}
+static int execute_if(size_t argc, char **argv) { // Run if/else statements
     char **condition = argv + 1; // Mark start of command in the condition
     char **consequent = NULL;
     char **alternative = NULL;
@@ -204,8 +204,7 @@ static int execute_if(size_t argc, char **argv) {
         return execute_a(altr_argc, alternative); // Run the alternative.
     }
 }
-// Handle execution of builtin commands.
-static int handle_builtins(Pipeline *pipeline) {
+static int handle_builtins(Pipeline *pipeline) { // Run builtin commands
     PipelinePart *command = &pipeline->commands[0];
     if (strncmp(command->tokens[0], "exit", 5) == 0) { // exit builtin
         if (command->argc == 1) { // `exit` with no args == `exit 0`.
@@ -233,6 +232,7 @@ static int handle_builtins(Pipeline *pipeline) {
     }
     return 0; // not handled a builtin.
 }
+// Given argv, in, and out, run it. If it fails, print an error.
 static void run(char **argv, int in, int out) {
     redirect(in, STDIN_FILENO);   // child reads from `in`
     redirect(out, STDOUT_FILENO); // child writes to `out`
@@ -241,17 +241,22 @@ static void run(char **argv, int in, int out) {
     }
     exit(1);
 }
-static void run_pipeline(Pipeline *pipeline) {
-    static char tmp[CHARS_PER_LINE] = {0};
-    int in = STDIN_FILENO; // the first command reads this
+
+static void run_pipeline(Pipeline *pipeline) { // Run an entire pipeline.
+    char env_scratch[CHARS_PER_LINE] = {0}; // Buffer for expand_env_vars.
+    int in = STDIN_FILENO; // The first command reads stdin directly.
+
+    // Loop through the commands in the pipeline and run them.
     for (size_t i = 0; pipeline->commands[i].tokens[0] != NULL; i++) {
         if (pipeline->commands[i + 1].tokens[0] == NULL) {
+            // This is the last command. Run it without forking.
             PipelinePart *command = &pipeline->commands[i];
-            expand_env_vars(command, tmp);
+            expand_env_vars(command, env_scratch);
             run(command->tokens, in, STDOUT_FILENO); // command < in
         }
-        int fd[2]; // in/out pipe ends
-        if (pipe(fd) == -1) {
+        // If we get here, this isn't the last command.
+        int fd[2]; // in/out pipe ends.
+        if (pipe(fd) == -1) { // Set up I/O pipes.
             perror("pipe");
             exit(1);
         }
@@ -259,21 +264,20 @@ static void run_pipeline(Pipeline *pipeline) {
         if (child_pid == -1) { // bail immediately if an error occurred
             perror("fork");
             exit(1);
-        } else if (child_pid == 0) { // run command[i] in the child process
+        } else if (child_pid == 0) { // child process runs command[i]
             closefd(fd[0]); // close unused read end of the pipe
             PipelinePart *command = &pipeline->commands[i];
-            expand_env_vars(command, tmp);
+            expand_env_vars(command, env_scratch);
             run(command->tokens, in, fd[1]); // command < in > fd[1]
-        } else { // parent
+        } else { // Parent process
             closefd(fd[1]); // close unused write end of the pipe
             closefd(in);    // close unused read end of the previous pipe
             in = fd[0]; // the next command reads from here
         }
     }
 }
-// Attempt to execute a command and return the status code.
-//static int execute(size_t argc, char **argv) {
-static int execute(Pipeline *pipeline) {
+static int execute(Pipeline *pipeline) { // Run command + return exit code
+    // NOTE: If you're using builtins you can NOT use pipes, currently.
     if (handle_builtins(pipeline)) {
         return 0;
     }
@@ -309,7 +313,7 @@ static void handle(char buf[CHARS_PER_LINE]) { // Handle a line of input.
     if (buf[len - 1] == '\n') { // Remove trailing newline, if it exists.
         buf[len - 1] = '\0';
     }
-    if (strlen(buf) == 0) { // If it was _just_ a newline, bail.
+    if (strlen(buf) == 0) { // If it was _only_ a newline, bail.
         return;
     }
     Pipeline pipeline = {0};
