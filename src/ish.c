@@ -1,6 +1,7 @@
 /**
  * A shell-ish thing for running commands, which is compatible with nothing.
  */
+#define VERSION "0.0.1"
 
 #include <stdio.h>      // fputs, fgets, perror, stdout, stderr
 #include <stdlib.h>     // exit, getenv, setenv
@@ -9,7 +10,6 @@
 #include <sys/wait.h>   // waitpid, WEXITSTATUS, WIFEXITED, WIFSIGNALED, WTERMSIG, WUNTRACED
 #include <unistd.h>     // close, dup2, execvp, fork
 
-#define VERSION "0.0.1"
 #define INT_BUF_SIZE 22 // 20 (max digits in int64) + 1 (sign) + 1 (null)
 #define CHARS_PER_LINE (32 * 1024) // Max chars per line of input
 #define PARTS_PER_LINE 512         // Max words per line.
@@ -24,13 +24,10 @@ typedef struct Pipeline_s {
     PipelinePart commands[PIPELINE_PARTS + 1];
 } Pipeline;
 static int execute(Pipeline *pipeline);
-
-// `settings` variable holds all the settings.
-static struct Settings_s {
+static struct Settings_s { // `settings` variabable holds all the settings
     int no_prompt;
     int quick_exit;
 } settings = {0};
-
 // Print the prompt (unless settings.no_prompt), return next line of input
 static char *prompt(char buf[CHARS_PER_LINE]) {
     if (!settings.no_prompt) {
@@ -45,13 +42,11 @@ static void fail(char *msg) { // Print msg to stderr and set $? to 1.
 static void print_if_usage() { // Explain how if statements work.
     fail("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n");
 }
-static void closefd(int fd) {
-    if (close(fd) == -1) {
-        perror("close");
-    }
+static void closefd(int fd) { // Close fd and print an error if it failed
+    if (close(fd) == -1) { perror("close"); }
 }
 static void redirect(int oldfd, int newfd) { // Move oldfd to newfd.
-    if (oldfd == newfd) {
+    if (oldfd == newfd) { // If they're the same, nothing to do.
         return;
     }
     if (dup2(oldfd, newfd) == -1) {
@@ -91,15 +86,12 @@ static char *int_to_str(char result[INT_BUF_SIZE], int n) {
         decimal_places++;
     } while (tmp >= 1);
     buf[decimal_places] = 0;
-
     for (size_t i = 0; i < decimal_places; i++) {
         result[i] = buf[decimal_places - i - 1];
     }
     result[decimal_places] = 0;
-
     return result;
 }
-
 // Destructively split a line of text in a vaguely-shell-like manner.
 static size_t shellsplit(Pipeline *pipeline, char input[CHARS_PER_LINE]) {
     int in_squote = 0; // To track if we're in a single-quoted string.
@@ -206,7 +198,7 @@ static int execute_if(size_t argc, char **argv) {
         return 1; // In theory, this means it got invalid arguments.
     }
     // Execute the `condition` command, and react accordingly.
-    if (execute_a(cond_argc, condition) == 0) { // If it runs successfully...
+    if (execute_a(cond_argc, condition) == 0) { // If it runs successfully
         return execute_a(cons_argc, consequent); // Run the consequent.
     } else {
         return execute_a(altr_argc, alternative); // Run the alternative.
@@ -216,7 +208,7 @@ static int execute_if(size_t argc, char **argv) {
 static int handle_builtins(Pipeline *pipeline) {
     PipelinePart *command = &pipeline->commands[0];
     if (strncmp(command->tokens[0], "exit", 5) == 0) { // exit builtin
-        if (command->argc == 1) { // `exit` with no args is equivalent to `exit 0`.
+        if (command->argc == 1) { // `exit` with no args == `exit 0`.
             exit(0);
         } else { // `exit <value>` =>
             fputs("\nTODO: Set exit status to ", stdout);
@@ -225,13 +217,13 @@ static int handle_builtins(Pipeline *pipeline) {
             exit(123);
         }
     } else if (strncmp(command->tokens[0], "if", 3) == 0) { // if builtin
-        if (command->argc >= 10) { // if needs 10+ args.
-            execute_if(command->argc, command->tokens); // actually run the if/else statement
+        if (command->argc >= 10) { // if 10+ args are provided, run it.
+            execute_if(command->argc, command->tokens);
         } else { // if there's not enough args, just print `if` usage info
             print_if_usage();
         }
         return 1; // handled by a builtin
-    } else if (strncmp(command->tokens[0], "setenv", 7) == 0) { // setenv builtin
+    } else if (strncmp(command->tokens[0], "setenv", 7) == 0) { // setenv
         if (command->argc != 3) {
             fail("Usage: setenv NAME VALUE\n");
             return 1; // handled by a builtin.
@@ -242,9 +234,8 @@ static int handle_builtins(Pipeline *pipeline) {
     return 0; // not handled a builtin.
 }
 static void run(char **argv, int in, int out) {
-    redirect(in, STDIN_FILENO);   /* <&in  : child reads from in */
-    redirect(out, STDOUT_FILENO); /* >&out : child writes to out */
-
+    redirect(in, STDIN_FILENO);   // child reads from `in`
+    redirect(out, STDOUT_FILENO); // child writes to `out`
     if (execvp(argv[0], argv) == -1) {
         perror("run");
     }
@@ -264,13 +255,11 @@ static void run_pipeline(Pipeline *pipeline) {
             perror("pipe");
             exit(1);
         }
-        pid_t pid = fork(); // child's pid
-        if (pid == -1) {
+        pid_t child_pid = fork(); // child's pid
+        if (child_pid == -1) { // bail immediately if an error occurred
             perror("fork");
             exit(1);
-        }
-
-        if (pid == 0) { // run command[i] in the child process
+        } else if (child_pid == 0) { // run command[i] in the child process
             closefd(fd[0]); // close unused read end of the pipe
             PipelinePart *command = &pipeline->commands[i];
             run(command->tokens, in, fd[1]); // command < in > fd[1]
@@ -287,16 +276,16 @@ static int execute(Pipeline *pipeline) {
     if (handle_builtins(pipeline)) {
         return 0;
     }
-
     pid_t child_pid = fork();
     int status;
-
-    if (child_pid == 0) {
+    if (child_pid == -1) { // bail immediately if an error occurred
+        perror("fork");
+        exit(1);
+    } else if (child_pid == 0) {
         run_pipeline(pipeline);
         exit(1);
     } else {
         waitpid(child_pid, &status, WUNTRACED);
-
         int ret = 0;
         if (WIFEXITED(status)) {
             ret = WEXITSTATUS(status);
@@ -310,10 +299,8 @@ static int execute(Pipeline *pipeline) {
         return ret;
     }
 }
-// Handle a line read via prompt().
-static void handle(char buf[CHARS_PER_LINE]) {
+static void handle(char buf[CHARS_PER_LINE]) { // Handle a line of input.
     static char intbuf[INT_BUF_SIZE] = {0};
-
     size_t len = strlen(buf);
     if (len == 0) { // If it's empty, bail.
         return;
