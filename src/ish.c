@@ -206,7 +206,27 @@ static int execute_if(size_t argc, char **argv) { // Run if/else statements
 }
 static int handle_builtins(Pipeline *pipeline) { // Run builtin commands
     PipelinePart *command = &pipeline->commands[0];
-    if (strncmp(command->tokens[0], "exit", 5) == 0) { // exit builtin
+    if (strncmp(command->tokens[0], "cd", 3) == 0) { // cd builtin
+        if (command->argc != 2) {
+            fail("Usage: cd PATH\n");
+            return -1; // builtin encountered error
+        } else { // ish only supports `cd <path>`
+            char path_buf[8192] = {0};
+            if (getcwd(path_buf, sizeof(path_buf)) == NULL) {
+                perror("cd: getcwd");
+                return -1; // builtin encountered error
+            }
+            if (strncmp(command->tokens[1], "-", 2) == 0) {
+                strncpy(command->tokens[1], getenv("OLDPWD"), sizeof(path_buf));
+            }
+            if (chdir(command->tokens[1]) < 0) {
+                perror("cd");
+                return -1; // builtin encountered error
+            }
+            setenv("OLDPWD", path_buf, 1); // successfully changed cwd.
+        }
+        return 1; // handled by builtin
+    } else if (strncmp(command->tokens[0], "exit", 5) == 0) { // exit builtin
         if (command->argc == 1) { // `exit` with no args == `exit 0`.
             exit(0);
         } else { // `exit <value>` => exit(<value as int>)
@@ -217,12 +237,13 @@ static int handle_builtins(Pipeline *pipeline) { // Run builtin commands
             execute_if(command->argc, command->tokens);
         } else { // if there's not enough args, just print `if` usage info
             print_if_usage();
+            return -1; // builtin encountered error
         }
         return 1; // handled by a builtin
     } else if (strncmp(command->tokens[0], "setenv", 7) == 0) { // setenv
         if (command->argc != 3) {
             fail("Usage: setenv NAME VALUE\n");
-            return 1; // handled by a builtin.
+            return -1; // builtin encountered error
         }
         setenv(command->tokens[1], command->tokens[2], 1 /* overwrite */);
         return 1; // handled by a builtin.
@@ -274,8 +295,11 @@ static void run_pipeline(Pipeline *pipeline) { // Run an entire pipeline.
 }
 static int execute(Pipeline *pipeline) { // Run command + return exit code
     // NOTE: If you're using builtins you can NOT use pipes, currently.
-    if (handle_builtins(pipeline)) {
-        return 0;
+    int bi_status = handle_builtins(pipeline);
+    if (bi_status < 0) {
+        return 1; // encountered error
+    } else if (bi_status > 0) {
+        return 0; // successfully handled by builtin
     }
     pid_t child_pid = fork();
     int status;

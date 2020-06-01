@@ -3,6 +3,7 @@ Tests for `ish`.
 """
 
 import subprocess
+from pathlib import Path
 from helpers import run
 
 
@@ -61,6 +62,17 @@ def test_help():
 def test_main():
     """Split between multiple functions below."""
     pass
+
+
+def test_cd():
+    """Test `cd` behavior."""
+    cwd = Path.cwd()
+    assert ishx("pwd\ncd ..\npwd\ncd -\npwd\n")['stdout'] == '\n'.join([
+        str(cwd),
+        str(cwd.parent),
+        str(cwd),
+        '',
+    ])
 
 
 def test_exit():
