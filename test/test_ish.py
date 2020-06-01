@@ -95,3 +95,7 @@ def test_env():
 def test_pipes():
     """Test that pipes work properly."""
     assert ish("echo hello, world '|' | sed 's/|/!/' | sed 's/ !/!/' | tr l w\n")['stdout'] == "hewwo, worwd!\n"
+
+    command = "setenv X /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin\n" +\
+              "echo ${X} | sed 's/:/\\n/g' | awk '{print length, $0}' | sort -n | cut -f2- -d' '\n"
+    assert ish(command)['stdout'] == "/usr/bin\n/root/bin\n/usr/sbin\n/usr/local/bin\n/usr/local/sbin\n"
