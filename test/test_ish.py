@@ -22,7 +22,10 @@ def ish(cmd):
     else:
         stderr = ''
 
-    return {'stdout': stdout, 'stderr': stderr, 'process': p2}
+    return {'stdout': stdout,
+            'stderr': stderr,
+            'process': p2,
+            'returncode': p2.returncode}
 
 
 def test_version():
