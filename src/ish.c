@@ -57,7 +57,7 @@ static void redirect(int oldfd, int newfd) { // Move oldfd to newfd.
 }
 // If whole word is ${X}, replace with the value of the env variable X.
 static void expand_env_vars(PipelinePart *command, char scratch[CHARS_PER_LINE]) {
-    for (size_t i = 0; i < command->argc; i++) {
+    for (size_t i = 0; i < command->argc && command->tokens[i]; i++) {
         char *tmp = command->tokens[i];
         if (tmp[0] == '$' && tmp[1] == '{' && tmp[strlen(tmp) - 1] == '}') {
             strncpy(scratch, tmp + 2, CHARS_PER_LINE);
@@ -262,6 +262,7 @@ static void run_pipeline(Pipeline *pipeline) {
         } else if (child_pid == 0) { // run command[i] in the child process
             closefd(fd[0]); // close unused read end of the pipe
             PipelinePart *command = &pipeline->commands[i];
+            expand_env_vars(command, tmp);
             run(command->tokens, in, fd[1]); // command < in > fd[1]
         } else { // parent
             closefd(fd[1]); // close unused write end of the pipe
