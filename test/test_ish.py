@@ -6,9 +6,11 @@ import subprocess
 from helpers import run
 
 
-def ish(cmd):
+def ish(cmd, args=None):
+    if args is None:
+        args = []
     p1 = subprocess.Popen(["echo", cmd], stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["./bin/ish", "-q"], stdin=p1.stdout,
+    p2 = subprocess.Popen(["./bin/ish", "-q", *args], stdin=p1.stdout,
                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     p1.stdout.close()
     output = p2.communicate()
@@ -26,6 +28,10 @@ def ish(cmd):
             'stderr': stderr,
             'process': p2,
             'returncode': p2.returncode}
+
+
+def ishx(cmd):
+    return ish(cmd, ['-x'])
 
 
 def test_version():
@@ -54,6 +60,12 @@ def test_help():
 def test_main():
     """Split between multiple functions below."""
     pass
+
+
+def test_returncode():
+    """Test return codes are set properly."""
+    assert ishx("true")['returncode'] == 0
+    assert ishx("false")['returncode'] == 1
 
 
 def test_strings():
