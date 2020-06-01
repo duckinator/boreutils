@@ -90,3 +90,8 @@ def test_if_bad():
 def test_env():
     """Test that environment variables can be set and read."""
     assert ish("setenv A B\necho ${A}\n")['stdout'] == "B\n"
+
+
+def test_pipes():
+    """Test that pipes work properly."""
+    assert ish("echo hello, world '|' | sed 's/|/!/' | sed 's/ !/!/' | tr l w\n")['stdout'] == "hewoo, worwd!\n"
