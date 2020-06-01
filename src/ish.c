@@ -4,7 +4,7 @@
 #define VERSION "0.0.1"
 
 #include <stdio.h>      // fputs, fgets, perror, stdout, stderr
-#include <stdlib.h>     // exit, getenv, setenv
+#include <stdlib.h>     // atoi, exit, getenv, setenv
 #include <string.h>     // strlen, strncmp
 #include <sys/types.h>  // pid_t
 #include <sys/wait.h>   // waitpid, WEXITSTATUS, WIFEXITED, WIFSIGNALED, WTERMSIG, WUNTRACED
@@ -209,11 +209,8 @@ static int handle_builtins(Pipeline *pipeline) { // Run builtin commands
     if (strncmp(command->tokens[0], "exit", 5) == 0) { // exit builtin
         if (command->argc == 1) { // `exit` with no args == `exit 0`.
             exit(0);
-        } else { // `exit <value>` =>
-            fputs("\nTODO: Set exit status to ", stdout);
-            fputs(command->tokens[1], stdout);
-            fputs("\n", stdout);
-            exit(123);
+        } else { // `exit <value>` => exit(<value as int>)
+            exit(atoi(command->tokens[1]));
         }
     } else if (strncmp(command->tokens[0], "if", 3) == 0) { // if builtin
         if (command->argc >= 10) { // if 10+ args are provided, run it.
@@ -241,7 +238,6 @@ static void run(char **argv, int in, int out) {
     }
     exit(1);
 }
-
 static void run_pipeline(Pipeline *pipeline) { // Run an entire pipeline.
     char env_scratch[CHARS_PER_LINE] = {0}; // Buffer for expand_env_vars.
     int in = STDIN_FILENO; // The first command reads stdin directly.

@@ -63,6 +63,13 @@ def test_main():
     pass
 
 
+def test_exit():
+    """Test `exit` behavior."""
+    assert ishx("exit")['returncode'] == 0
+    assert ishx("exit 1")['returncode'] == 1
+    assert ishx("exit 123")['returncode'] == 123
+
+
 def test_returncode():
     """Test return codes are set properly."""
     assert ishx("true")['returncode'] == 0
