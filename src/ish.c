@@ -317,9 +317,8 @@ static void handle(char buf[CHARS_PER_LINE]) { // Handle a line of input.
     int status = execute(&pipeline);
     setenv("?", int_to_str(intbuf, status), 1); 
 }
-
 int main(int argc, char **argv) {
-    char buf[CHARS_PER_LINE] = {0};
+    char input[CHARS_PER_LINE] = {0};
     int help = 0; // Non-zero means we should print help text below.
     int version = 0; // Non-zero means we should print version info below.
     for (int i = 1; i < argc; i++) { // Time for argument parsing!
@@ -343,9 +342,9 @@ int main(int argc, char **argv) {
         fputs("-h    Print help text and exit\n", stdout);
         return 1;
     }
-    // Read prompt response, bail if we got NULL, handle line. Forever.
-    while (prompt(buf) != NULL) { // NULL means EOF or error.
-        handle(buf);
+    setenv("SHELL", argv[0], 1);
+    while (prompt(input) != NULL) { // Prompt + read input, bail if NULL.
+        handle(input);
     }
     return 0;
 }

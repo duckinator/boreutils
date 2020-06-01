@@ -37,6 +37,7 @@ def ishx(cmd):
 def test_version():
     """Check that -v works."""
     assert run(["ish", "-v"]).stdout.startswith("ish v")
+    assert ish("echo ${SHELL}")['stdout'].endswith("/ish\n")
 
 
 def test_missing_args():
