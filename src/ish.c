@@ -122,9 +122,10 @@ static size_t shellsplit(Pipeline *pipeline, char input[CHARS_PER_LINE]) {
             buf_idx++;
         }
         if (new_token) { // Start a new token.
-            while (input[input_idx + 1] == ' ') { // Eat extra spaces.
+            if (input[input_idx + 1] == ' ') { // Eat extra spaces.
                 input_idx++;
                 buf_idx++;
+                continue;
             }
             num_pieces++;
             command->tokens[num_pieces - 1] = input + buf_idx + 1;
