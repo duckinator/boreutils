@@ -21,11 +21,11 @@ def _modified_path():
         os.environ['PATH'] = original_path
 
 
-def check(cmd):
+def check(cmd, **kwargs):
     """Run a command, capture the output as text, check it had a 0 returncode,
        and return the +CompletedProcess+ object."""
     with _modified_path():
-        return subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return subprocess.run(cmd, capture_output=True, text=True, check=True, **kwargs)
 
 
 def check_version(tool):
