@@ -44,7 +44,7 @@ Utilities that are checked off have been implemented.
 - [ ] du
 - [x] echo
 - [ ] ed
-- [ ] env
+- [x] env
 - [ ] ex
 - [ ] expand
 - [ ] expr
