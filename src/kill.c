@@ -134,7 +134,6 @@ int main(int argc, char **argv)
             if (signal_names[i] != NULL) {
                 i_per_line++;
                 printf("%i) %s\t", i, signal_names[i]);
-                //puts(signal_names[i]);
             }
             if (i_per_line > 3) {
                 puts("");
