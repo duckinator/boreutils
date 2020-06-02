@@ -16,6 +16,7 @@ static const char *BOREUTILS_VERSION = "0.0.0b1";
 int has_arg(int argc, char **argv, char *search);
 void bu_missing_argument(char *name);
 void bu_extra_argument(char *name);
+void bu_invalid_argument(char *name, char *arg);
 
 int bu_handle_version(int argc, char **argv);
 
@@ -49,6 +50,19 @@ void bu_extra_argument(char *name) {
     // <name>: Extra argument
     fputs(name, stderr);
     fputs(": Extra argument\n", stderr);
+    // See '<name> --help' for usage information.
+    fputs("See '", stderr);
+    fputs(name, stderr);
+    fputs(" --help' for usage information.\n", stderr);
+}
+
+
+void bu_invalid_argument(char *name, char *arg) {
+    // <name>: Extra argument
+    fputs(name, stderr);
+    fputs(": Invalid argument: ", stderr);
+    fputs(arg, stderr);
+    fputs("\n", stderr);
     // See '<name> --help' for usage information.
     fputs("See '", stderr);
     fputs(name, stderr);
