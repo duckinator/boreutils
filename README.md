@@ -68,7 +68,7 @@ Utilities that are checked off have been implemented.
 - [ ] ipcs
 - [ ] jobs
 - [ ] join
-- [ ] kill
+- [x] kill
 - [ ] lex
 - [ ] link
 - [ ] ln
@@ -81,7 +81,7 @@ Utilities that are checked off have been implemented.
 - [ ] m4
 - [ ] mailx
 - [ ] make
-- [ ] man
+- [ ] man (kind of)
 - [ ] mesg
 - [ ] mkdir
 - [ ] mkfifo
@@ -121,7 +121,7 @@ Utilities that are checked off have been implemented.
 - [ ] sccs
 - [ ] sed
 - [ ] sh
-- [ ] sleep
+- [x] sleep
 - [ ] sort
 - [ ] split
 - [ ] strings
@@ -165,5 +165,6 @@ Utilities that are checked off have been implemented.
 
 Here are non-POSIX.1-2017 utilities which are provided:
 
+- [x] ish (an extremely basic shell; not POSIX-compliant)
 - [x] whoami
 - [x] yes
