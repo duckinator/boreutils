@@ -36,7 +36,7 @@ def test_help():
 def test_main():
     """Running `sleep 1` should run successfully."""
     start = time.time()
-    ret = run(["sleep", "2"])
+    ret = run(["sleep", "1"])
     end = time.time()
 
     assert len(ret.stdout) == 0
