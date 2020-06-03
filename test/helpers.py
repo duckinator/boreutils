@@ -38,3 +38,10 @@ def run(cmd, **kwargs):
        and return the +CompletedProcess+ object."""
     with _modified_path():
         return subprocess.run(cmd, capture_output=True, text=True, check=False, **kwargs)
+
+
+def check_fail(cmd, **kwargs):
+    """Same as run(cmd, **kwargs) but asserts the returncode is >0."""
+    ret = run(cmd, **kwargs)
+    assert ret.returncode > 0
+    return ret
