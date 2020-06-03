@@ -114,7 +114,7 @@ Utilities that are checked off have been implemented.
 - [ ] qsub
 - [ ] read
 - [ ] renice
-- [ ] rm
+- [x] rm
 - [ ] rmdel
 - [ ] rmdir
 - [ ] sact
