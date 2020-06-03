@@ -5,8 +5,8 @@
  *
  * SYNOPSIS
  * ========
- *     cal ARGS...
-*
+ *     echo ARGS...
+ *
  * DESCRIPTION
  * ===========
  *     Prints all arguments, separated by spaces, followed by a newline.
