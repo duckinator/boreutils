@@ -89,8 +89,13 @@ int main(int argc, char **argv)
         return head_stream(stdin, lines);
     }
 
+    int ret;
     for (int i = 1 + offset; i < argc; i++) {
-        int ret = head_file(argv[i], lines);
+        if (strncmp(argv[i], "-", 2) == 0) {
+            ret = head_stream(stdin, lines);
+        } else {
+            ret = head_file(argv[i], lines);
+        }
         if (ret != 0) {
             return ret;
         }

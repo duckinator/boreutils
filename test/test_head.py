@@ -79,3 +79,15 @@ def test_stdin_n11():
     p1.stdout.close()
     output = p2.communicate()[0].decode()
     assert output == "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n"
+
+
+def test_stdin_file_n3():
+    """Passing `-n 3`, a file path, and `-` read 3 lines from the file + stdin."""
+    path1 = Path("src/basename.c").resolve()
+    expected_path1 = "\n".join(path1.read_text().splitlines()[0:3]) + "\n"
+
+    p1 = subprocess.Popen(["printf", "1\n2\n3\n4\n5\n6\n"], stdout=subprocess.PIPE)
+    p2 = subprocess.Popen(["./bin/head", "-n", "3", str(path1), "-"], stdin=p1.stdout, stdout=subprocess.PIPE)
+    p1.stdout.close()
+    output = p2.communicate()[0].decode()
+    assert output == expected_path1 + "1\n2\n3\n"
