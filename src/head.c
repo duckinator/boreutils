@@ -95,11 +95,34 @@ int main(int argc, char **argv)
         return head_stream(stdin, lines);
     }
 
+
+    // From the POSIX.1-2017 standard:
+    // https://pubs.opengroup.org/onlinepubs/9699919799/utilities/head.html#tag_20_57_10
+    //
+    // >  The standard output shall contain designated portions of the input files.
+    // > If multiple file operands are specified, head shall precede the output for each with the header:
+    // > "\n==> %s <==\n", <pathname>
+    // > except that the first header written shall not include the initial <newline>.
+    //
+    // `print_file_headers` is true if there's >2 args after the flags.
+
+    int print_file_headers = (argc - offset) > 2;
     int ret;
     for (int i = 1 + offset; i < argc; i++) {
+        if (print_file_headers && i != (1 + offset)) {
+            puts(""); // print leading newline for all but the first header
+        }
         if (strncmp(argv[i], "-", 2) == 0) {
+            if (print_file_headers) {
+                puts("==> standard input <==");
+            }
             ret = head_stream(stdin, lines);
         } else {
+            if (print_file_headers) {
+                fputs("==> ", stdout);
+                fputs(argv[i], stdout);
+                puts(" <==");
+            }
             ret = head_file(argv[i], lines);
         }
         if (ret != 0) {

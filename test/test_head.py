@@ -45,7 +45,10 @@ def test_file():
     expected_path1 = "\n".join(path1.read_text().splitlines()[0:10]) + "\n"
     expected_path2 = "\n".join(path2.read_text().splitlines()[0:10]) + "\n"
     expected_path3 = "\n".join(path3.read_text().splitlines()[0:10]) + "\n"
-    expected_all = expected_path1 + expected_path2 + expected_path3
+    expected_all = \
+        f"==> {path1} <==\n" + expected_path1 + \
+        f"\n==> {path2} <==\n" + expected_path2 + \
+        f"\n==> {path3} <==\n" + expected_path3
     assert check(["head", str(path1)]).stdout == expected_path1
     assert check(["head", str(path1), str(path2), str(path3)]).stdout == expected_all
 
@@ -58,7 +61,10 @@ def test_file_n11():
     expected_path1 = "\n".join(path1.read_text().splitlines()[0:11]) + "\n"
     expected_path2 = "\n".join(path2.read_text().splitlines()[0:11]) + "\n"
     expected_path3 = "\n".join(path3.read_text().splitlines()[0:11]) + "\n"
-    expected_all = expected_path1 + expected_path2 + expected_path3
+    expected_all = \
+        f"==> {path1} <==\n" + expected_path1 + \
+        f"\n==> {path2} <==\n" + expected_path2 + \
+        f"\n==> {path3} <==\n" + expected_path3
     assert check(["head", "-n", "11", str(path1)]).stdout == expected_path1
     assert check(["head", "-n", "11", str(path1), str(path2), str(path3)]).stdout == expected_all
 
@@ -90,4 +96,4 @@ def test_stdin_file_n3():
     p2 = subprocess.Popen(["./bin/head", "-n", "3", str(path1), "-"], stdin=p1.stdout, stdout=subprocess.PIPE)
     p1.stdout.close()
     output = p2.communicate()[0].decode()
-    assert output == expected_path1 + "1\n2\n3\n"
+    assert output == f"==> {str(path1)} <==\n" + expected_path1 + "\n==> standard input <==\n" + "1\n2\n3\n"
