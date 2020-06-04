@@ -42,4 +42,4 @@ def test_main():
     assert len(ret.stdout) == 0
     assert len(ret.stderr) == 0
     assert ret.returncode == 0
-    assert (end - start) >= 2.0
+    assert (end - start) >= 1.0
