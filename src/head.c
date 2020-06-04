@@ -21,23 +21,32 @@
  */
 
 
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "boreutils.h"
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/utilities/head.html
 
 static int head_stream(FILE *stream, int lines) {
-    int last;
-    while (lines > 0) {
-        last = fgetc(stream);
-        if (last == EOF) {
-            break;
-        }
-        fputc(last, stdout);
-        if (last == '\n') {
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t bytes_read = 1;
+    while (bytes_read >= 0 && lines > 0) {
+        bytes_read = getline(&line, &n, stream);
+        if (bytes_read > 0 && line != NULL) {
+            fputs(line, stdout);
             lines--;
         }
+    }
+
+    if (line != NULL) {
+        free(line);
+    }
+
+    if (bytes_read == -1) {
+        perror("head: error reading file");
+        return 1;
     }
 
     return 0;
