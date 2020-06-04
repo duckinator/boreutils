@@ -21,11 +21,8 @@
  */
 
 
-#include <fcntl.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include "boreutils.h"
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/utilities/head.html
