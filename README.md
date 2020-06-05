@@ -61,7 +61,7 @@ Utilities that are checked off have been implemented.
 - [ ] getopts
 - [ ] grep
 - [ ] hash
-- [ ] head
+- [x] head
 - [ ] iconv
 - [ ] id
 - [ ] ipcrm
@@ -128,7 +128,7 @@ Utilities that are checked off have been implemented.
 - [ ] strip
 - [ ] stty
 - [ ] tabs
-- [ ] tail
+- [x] tail
 - [ ] talk
 - [ ] tee
 - [ ] test
