@@ -341,6 +341,15 @@ static void handle(char buf[CHARS_PER_LINE]) { // Handle a line of input.
     int status = execute(&pipeline);
     setenv("?", int_to_str(intbuf, status), 1); 
 }
+static void set_default_variables(int argc, char **argv) {
+    char intbuf[INT_BUF_SIZE] = {0};
+    int offset = 0;
+    setenv("SHELL", argv[0], 1); // set ${SHELL}
+    for (int i = 0; i < argc; i++) { // set ${0}, ${1}, ..., ${<argc - 1>}
+        if (argv[i][0] == '-') { offset++; continue; } // skip flags.
+        setenv(int_to_str(intbuf, i - offset), argv[i], 1);
+    }
+}
 int main(int argc, char **argv) {
     char input[CHARS_PER_LINE] = {0};
     int help = 0; // Non-zero means we should print help text below.
@@ -366,7 +375,8 @@ int main(int argc, char **argv) {
         fputs("-h    Print help text and exit\n", stdout);
         return 1;
     }
-    setenv("SHELL", argv[0], 1);
+
+    set_default_variables(argc, argv);
     while (prompt(input) != NULL) { // Prompt + read input, bail if NULL.
         handle(input);
     }

@@ -31,8 +31,10 @@ def ish(cmd, args=None):
             'returncode': p2.returncode}
 
 
-def ishx(cmd):
-    return ish(cmd, ['-x'])
+def ishx(cmd, args=None):
+    if args is None:
+        args = []
+    return ish(cmd, ['-x', *args])
 
 
 def test_version():
@@ -134,3 +136,19 @@ def test_pipes():
     command = "setenv X /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin\n" +\
               "echo ${X} | sed 's/:/\\n/g' | awk '{print length, $0}' | sort -n | cut -f2- -d' '\n"
     assert ish(command)['stdout'] == "/usr/bin\n/root/bin\n/usr/sbin\n/usr/local/bin\n/usr/local/sbin\n"
+
+
+def test_preset_variables():
+    """Test that $SHELL, $0-$<argc - 1>, etc are all set."""
+    assert ishx("echo ${SHELL}")['stdout'] == "./bin/ish\n"
+    assert ishx("echo ${0}")['stdout'] == "./bin/ish\n"
+
+    args = ['1', '2 owo', '3', '4', '5', '6', '7', '8', '9', '10']
+    assert ishx("echo ${0}", args=args)['stdout'] == "./bin/ish\n"
+    for i in range(0, 10):
+        assert ishx("echo ${" + str(i + 1) + "}", args=args)['stdout'] == args[i] + "\n"
+
+    assert ishx(
+        "echo ${0} ${1} ${2} ${3} ${4} ${5} ${6} ${7} ${8} ${9} ${10}",
+        args=args,
+    )['stdout'] == "./bin/ish " + " ".join(args) + "\n"
