@@ -2,40 +2,60 @@
 
 An implementation of some of the [utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html) specified in [POSIX.1-2017](https://pubs.opengroup.org/onlinepubs/9699919799/toc.htm).
 
-# Utilities, and current status
+## Excluded utilities
 
-Below is a list of [POSIX.1-2017 utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html), excluding ones that are SCCS subcommands.
+Boreutils focuses on non-optional utilities.
+Many POSIX utility categories and XSI (X/Open Systems Interfaces) utilities are excluded.
+
+Things explicitly excluded include:
+
+- Things that make more sense as shell builtins, including:
+  * Things that are only really usable in a shell: `cd`, `hash`, `read`, etc.
+  * Things related to job control: `bg`, `fg`, `jobs`, etc.
+  * Things used exclusively for printing: `lp`, etc.
+- The following [Margin Codes](https://pubs.opengroup.org/onlinepubs/9699919799/help/codes.html):
+  * `CD`: C-Language Development Utilities
+  * `FD`: FORTRAN Development Utilities
+  * `FR`: FORTRAN Runtime Utilities
+  * `OB`: Obsolescent
+  * `SD`: Software Development Utilities
+  * `UU`: UUCP Utilities
+- Things that are very heavily influenced by other software, including:
+  * Things that have terminal-specific behavior, like `tput`.
+
+Things not excluded, but prone to be put off forever include:
+
+- Things where the standard doesn't provide enough information:
+  * `mesg`: "The mechanism by which the message status of the terminal is changed is unspecified"
+- Things where there's no standard for the underlying functionality:
+  * `ps`: On Linux, you read /proc. On BSD, you use `kvm_getproc*()`. Elsewhere? Who the heck knows.
+- Obscenely complex things, such as those involving creating archives:
+  * `pax`
+
+
+## Utilities, and current status
+
+Below is the list of [POSIX.1-2017 utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html) that are planned to be implemented.
 
 Utilities that are checked off have been implemented.
 
-- [ ] alias
-- [ ] ar
-- [ ] asa
 - [ ] at
 - [ ] awk
 - [x] basename
 - [ ] batch
 - [ ] bc
-- [ ] bg
-- [ ] c99
 - [ ] cal (September 1752 and later works)
 - [x] cat
-- [ ] cd
-- [ ] cflow
 - [ ] chgrp
 - [ ] chmod
 - [ ] chown
 - [ ] cksum
 - [ ] cmp
 - [ ] comm
-- [ ] command
-- [ ] compress
 - [ ] cp
 - [ ] crontab
 - [ ] csplit
-- [ ] ctags
 - [ ] cut
-- [ ] cxref
 - [x] date
 - [ ] dd
 - [ ] df
@@ -49,40 +69,29 @@ Utilities that are checked off have been implemented.
 - [ ] expand
 - [ ] expr
 - [x] false
-- [ ] fc
-- [ ] fg
 - [ ] file
 - [ ] find
 - [ ] fold
-- [ ] fort77
-- [ ] fuser
 - [ ] gencat
 - [ ] getconf
 - [ ] getopts
 - [ ] grep
-- [ ] hash
 - [x] head
 - [ ] iconv
 - [ ] id
-- [ ] ipcrm
-- [ ] ipcs
-- [ ] jobs
 - [ ] join
 - [x] kill
-- [ ] lex
 - [ ] link
 - [ ] ln
 - [ ] locale
 - [ ] localedef
 - [ ] logger
 - [ ] logname
-- [ ] lp
 - [ ] ls
 - [ ] m4
 - [ ] mailx
 - [ ] make
-- [ ] man (kind of)
-- [ ] mesg
+- [x] man (kind of)
 - [ ] mkdir
 - [ ] mkfifo
 - [ ] more
@@ -90,7 +99,6 @@ Utilities that are checked off have been implemented.
 - [ ] newgrp
 - [ ] nice
 - [ ] nl
-- [ ] nm
 - [ ] nohup
 - [ ] od
 - [ ] paste
@@ -101,31 +109,15 @@ Utilities that are checked off have been implemented.
 - [ ] printf
 - [ ] ps
 - [x] pwd
-- [ ] qalter
-- [ ] qdel
-- [ ] qhold
-- [ ] qmove
-- [ ] qmsg
-- [ ] qrerun
-- [ ] qrls
-- [ ] qselect
-- [ ] qsig
-- [ ] qstat
-- [ ] qsub
-- [ ] read
 - [ ] renice
 - [x] rm
-- [ ] rmdel
 - [ ] rmdir
-- [ ] sact
-- [ ] sccs
 - [ ] sed
 - [ ] sh
 - [x] sleep
 - [ ] sort
 - [ ] split
 - [ ] strings
-- [ ] strip
 - [ ] stty
 - [ ] tabs
 - [x] tail
@@ -134,34 +126,21 @@ Utilities that are checked off have been implemented.
 - [ ] test
 - [ ] time
 - [ ] touch
-- [ ] tput
 - [ ] tr
 - [x] true
 - [ ] tsort
 - [x] tty
-- [ ] type
-- [ ] ulimit
 - [ ] umask
-- [ ] unalias
 - [ ] uname
-- [ ] uncompress
 - [ ] unexpand
-- [ ] unget
 - [ ] uniq
 - [ ] unlink
-- [ ] uucp
 - [ ] uudecode
 - [ ] uuencode
-- [ ] uustat
-- [ ] uux
 - [ ] vi
 - [ ] wait
 - [ ] wc
-- [ ] who
-- [ ] write
 - [ ] xargs
-- [ ] yacc
-- [ ] zcat
 
 Here are non-POSIX.1-2017 utilities which are provided:
 
