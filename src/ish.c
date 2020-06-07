@@ -1,5 +1,39 @@
 /**
- * A shell-ish thing for running commands, which is compatible with nothing.
+ * NAME
+ * ====
+ *     ish - a vaguely shell-ish program
+ *
+ * SYNOPSIS
+ * ========
+ *     ish [-q] [-x] [SCRIPT_PATH] [ARGS...]
+ *     ish [-h|-v]
+ *
+ *     -q    Don't display the prompt.
+ *     -x    Exit immediately on error
+ *     -v    Print version information and exit
+ *     -h    Print help text and exit
+ *
+ * USAGE
+ * =====
+ *     cd DIRECTORY         Changes the current directory to DIRECTORY.
+ *                          If DIRECTORY is -, changes to ${OLDPWD} instead.
+ *     exit [STATUS]        Exits with the specified STATUS number. (Default=0)
+ *     setenv NAME VALUE    Sets ${NAME} to "VALUE".
+ *     ${NAME}              Is replaced with the value of env var ${NAME}
+ *     "foo"                Double-quoted string.
+ *     'foo'                Single-quoted string.
+ *     "foo""bar"'baz'      Combined into one string; equivalent to "foobarbaz"
+ *     foo | bar | baz      Basic pipe support; redirects stdout to stdin.
+ *
+ * If statements:
+ *     if THIS-RETURNS-ZERO then { RUN-THIS } else { RUN-THIS-INSTEAD }
+ *
+ * No support for:
+ *     - combining if/else and pipes
+ *     - boolean operators (&& || & | etc)
+ *     - math
+ *     - subshells
+ *     - complex redirection
  */
 #define VERSION "0.0.1"
 
@@ -368,7 +402,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     if (help) { // If they passed -h or similar, print help text and bail.
-        fputs("Usage: ish [-q] [-x] [-h]\n", stdout);
+        fputs("Usage: ish [-q] [-x] [-h] [-v]\n", stdout);
         fputs("-q    Quiet\n", stdout);
         fputs("-x    Exit immediately on error\n", stdout);
         fputs("-v    Print version information and exit\n", stdout);
