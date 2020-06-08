@@ -37,14 +37,15 @@ Things not excluded, but prone to be put off forever include:
 
 Below is the list of [POSIX.1-2017 utilities](https://pubs.opengroup.org/onlinepubs/9699919799/idx/utilities.html) that are planned to be implemented.
 
-Utilities that are checked off have been implemented.
+Utilities that are checked off have been implemented. Partial implementations
+have notes explaining what is missing and a link to GitHub issues.
 
 - [ ] at
 - [ ] awk
 - [x] basename
 - [ ] batch
 - [ ] bc
-- [ ] cal (September 1752 and later works)
+- [x] cal (August 1752 and earlier is broken. [GH#4](https://github.com/duckinator/boreutils/issues/4))
 - [x] cat
 - [ ] chgrp
 - [ ] chmod
@@ -80,7 +81,7 @@ Utilities that are checked off have been implemented.
 - [ ] iconv
 - [ ] id
 - [ ] join
-- [x] kill
+- [x] kill (`kill -l EXIT_STATUS` is unimplemented. [GH#7](https://github.com/duckinator/boreutils/issues/7))
 - [x] link
 - [ ] ln
 - [ ] locale
@@ -91,7 +92,7 @@ Utilities that are checked off have been implemented.
 - [ ] m4
 - [ ] mailx
 - [ ] make
-- [x] man (kind of)
+- [x] man (It's not very robust, and doesn't support `-k`. [GH#8](https://github.com/duckinator/boreutils/issues/8))
 - [ ] mkdir
 - [ ] mkfifo
 - [ ] more
