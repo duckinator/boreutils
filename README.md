@@ -139,7 +139,6 @@ have notes explaining what is missing and a link to GitHub issues.
 - [ ] uudecode
 - [ ] uuencode
 - [ ] vi
-- [ ] wait
 - [ ] wc
 - [ ] xargs
 
