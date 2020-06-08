@@ -81,7 +81,7 @@ Utilities that are checked off have been implemented.
 - [ ] id
 - [ ] join
 - [x] kill
-- [ ] link
+- [x] link
 - [ ] ln
 - [ ] locale
 - [ ] localedef
@@ -134,7 +134,7 @@ Utilities that are checked off have been implemented.
 - [ ] uname
 - [ ] unexpand
 - [ ] uniq
-- [ ] unlink
+- [x] unlink
 - [ ] uudecode
 - [ ] uuencode
 - [ ] vi
