@@ -111,7 +111,7 @@ Utilities that are checked off have been implemented.
 - [x] pwd
 - [ ] renice
 - [x] rm
-- [ ] rmdir
+- [x] rmdir
 - [ ] sed
 - [ ] sh
 - [x] sleep
