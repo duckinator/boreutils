@@ -21,6 +21,16 @@ def _modified_path():
         os.environ['PATH'] = original_path
 
 
+@contextmanager
+def chdir(path):
+    oldcwd = os.getcwd()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(oldcwd)
+
+
 def check(cmd, **kwargs):
     """Run a command, capture the output as text, check it had a 0 returncode,
        and return the +CompletedProcess+ object."""
