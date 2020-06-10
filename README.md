@@ -132,7 +132,7 @@ have notes explaining what is missing and a link to GitHub issues.
 - [ ] tsort
 - [x] tty
 - [ ] umask
-- [ ] uname
+- [x] uname
 - [ ] unexpand
 - [ ] uniq
 - [x] unlink
