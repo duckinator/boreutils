@@ -144,6 +144,7 @@ have notes explaining what is missing and a link to GitHub issues.
 
 Here are non-POSIX.1-2017 utilities which are provided:
 
+- [x] dir (an extremely basic `ls` alternative)
 - [x] ish (an extremely basic shell; not POSIX-compliant)
-- [x] whoami
-- [x] yes
+- [x] whoami (no standard)
+- [x] yes (no standard)
