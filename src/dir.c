@@ -5,7 +5,7 @@
  *
  * SYNOPSIS
  * ========
- *     dir [DIRECTORY]
+ *     dir [-a|-A] [DIRECTORY]
  *     dir [--help|--version]
  *
  * DESCRIPTION
@@ -18,6 +18,10 @@
  *
  *     DIRECTORY    The path to a directory.
  *
+ *     -a           Show all files, including '.' or '..'.
+ *     -A           Show all files, except '.' or '..'.
+ *     -p           Append trailing slash to directories.
+ *
  *     --help       Print help text and exit.
  *     --version    Print version information and exit.
  */
@@ -28,6 +32,28 @@
 #include <sys/stat.h>
 #include "boreutils.h"
 
+static int show_all = 0;
+static int show_most = 0;
+
+static int trailing_slash = 0;
+
+static int filter(const struct dirent *de) {
+    int hidden_file = (de->d_name[0] == '.');
+    int is_dot_or_dotdot = hidden_file && (de->d_name[1] == '.' || de->d_name[1] == '\0');
+
+    // If it's not hidden or we got -a, allow it.
+    if (!hidden_file || show_all) {
+        return 1;
+    }
+
+    // If we got -A and it's not . or .., allow it.
+    if (show_most && !is_dot_or_dotdot) {
+        return 1;
+    }
+
+    return 0;
+}
+
 static int is_dir(char *path) {
     struct stat path_stat;
     stat(path, &path_stat);
@@ -36,7 +62,7 @@ static int is_dir(char *path) {
 
 static int list_dir_contents(const char *dir) {
     struct dirent **entries;
-    int num_entries = scandir(dir, &entries, 0, alphasort);
+    int num_entries = scandir(dir, &entries, filter, alphasort);
     if (num_entries < 0) {
         perror("dir");
         return 1;
@@ -44,7 +70,7 @@ static int list_dir_contents(const char *dir) {
 
     for (int i = 0; i < num_entries; i++) {
         fputs(entries[i]->d_name, stdout);
-        if (is_dir(entries[i]->d_name)) {
+        if (trailing_slash && is_dir(entries[i]->d_name)) {
             fputc('/', stdout);
         }
         puts("");
@@ -67,12 +93,36 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (argc == 1) {
+    int start = 1;
+    for (int i = 1; i < argc; i++) {
+        // If the first character isn't a -, we're done looking at options.
+        if (argv[i][0] != '-') {
+            break;
+        }
+        start++;
+
+        for (size_t j = 1; j < strlen(argv[i]); j++) {
+            if (argv[i][j] == 'a') {
+                show_all = 1;
+                show_most = 0;
+            }
+
+            if (argv[i][j] == 'A') {
+                show_most = 1;
+            }
+
+            if (argv[i][j] == 'p') {
+                trailing_slash = 1;
+            }
+        }
+    }
+
+    if ((argc - start) == 0) {
         return list_dir_contents(".");
     }
 
-    int show_header = (argc <= 2) ? 0 : 1;
-    for (int i = 1; i < argc; i++) {
+    int show_header = ((argc - start) <= 2) ? 0 : 1;
+    for (int i = start; i < argc; i++) {
         if (show_header) {
             fputs(argv[i], stdout);
             puts(":");
