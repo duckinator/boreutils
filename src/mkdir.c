@@ -28,6 +28,13 @@
 #include <sys/stat.h>
 #include "boreutils.h"
 
+
+static int path_exists(char *pathname) {
+  struct stat buffer;
+  return stat(pathname, &buffer);
+}
+
+
 int main(int argc, char **argv)
 {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
@@ -49,20 +56,66 @@ int main(int argc, char **argv)
 
     char *path = NULL;
     mode_t mode = S_IRWXU | S_IRWXG | S_IRWXO;
+    int dash_p = 0;
+    int dash_m = 0;
 
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
             // Parse flags.
-            fputs("mkdir: error: doesn't support any flags yet.", stderr);
-            return 1;
+            if (argv[i][1] == 'p') {
+                dash_p = 1;
+            } else if (argv[i][1] == 'm') {
+                dash_m = 1;
+            } else {
+                char str[3] = "-X";
+                str[1] = argv[i][1];
+                bu_invalid_argument(argv[0], str);
+                return 1;
+            }
         } else if (path == NULL) {
             // First non-flag is the directory to create.
             path = argv[i];
         } else {
             // We got more than one path!
-            // But POSIX only requires one, and I'm lazy, so we bail.
+            // But POSIX only requires handling one, and I'm lazy, so we bail.
             bu_extra_argument(argv[0]);
             return 1;
+        }
+    }
+
+    // mkdir requires a path.
+    if (path == NULL) {
+        bu_missing_argument(argv[0]);
+        return 0;
+    }
+
+    // TODO: Figure out how to parse the mode.
+    if (dash_m) {
+        fputs("mkdir: error: doesn't support -m MODE yet.", stderr);
+        return 1;
+    }
+
+    if (dash_p) {
+        size_t len = strlen(path);
+        for (size_t i = 0; i < len; i++) {
+            if (path[i] != '/') {
+                continue;
+            }
+
+            // skip the first and last character
+            if (i == 0 || i == (len - 1)) {
+                continue;
+            }
+            path[i] = '\0';
+            if (path_exists(path) == -1) {
+                printf("Path '%s' does not exist.\n", path);
+                if (mkdir(path, mode) == -1) {
+                    printf("  and mkdir() failed!\n");
+                    perror(argv[0]);
+                    return 1;
+                }
+            }
+            path[i] = '/';
         }
     }
 

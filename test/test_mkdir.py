@@ -42,16 +42,16 @@ def test_absolute_paths(tmpdir_factory):
     """mkdir can create absolute paths"""
     data = Path(tmpdir_factory.mktemp("data"))
     a = data / "a"
-    # b = data / "b" / "b2"
+    b = data / "b" / "b2"
     # c = data / "c"
 
     assert not a.exists()
     assert check(["mkdir", str(a)])
     assert a.is_dir()
 
-    # assert not b.exists()
-    # assert check(["mkdir", "-p", str(b)])
-    # assert b.is_dir()
+    assert not b.exists()
+    assert check(["mkdir", "-p", str(b)])
+    assert b.is_dir()
 
     # assert not c.exists()
     # assert check(["mkdir", "-m", "777", str(c)])
@@ -62,7 +62,7 @@ def test_relative_paths(tmpdir_factory):
     """mkdir can create relative paths."""
     data = Path(tmpdir_factory.mktemp("data"))
     a = data / "a"
-    # b = data / "b" / "b2"
+    b = data / "b" / "b2"
     # c = data / "c"
 
     with chdir(data):
@@ -70,9 +70,9 @@ def test_relative_paths(tmpdir_factory):
         assert check(["mkdir", "a"])
         assert a.is_dir()
 
-        # assert not b.exists()
-        # assert check(["mkdir", "-p", "b/b2"])
-        # assert b.is_dir()
+        assert not b.exists()
+        assert check(["mkdir", "-p", "b/b2"])
+        assert b.is_dir()
 
         # assert not c.exists()
         # assert check(["mkdir", "-m", "777", "c"])
