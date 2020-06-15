@@ -4,8 +4,8 @@ Tests for POSIX-compatible `rm`.
 https://pubs.opengroup.org/onlinepubs/9699919799/utilities/rm.html
 """
 
-import pytest
 from pathlib import Path
+import pytest
 from helpers import check, check_fail, check_version, run
 
 

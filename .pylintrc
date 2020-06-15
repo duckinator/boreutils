@@ -8,7 +8,7 @@ load-plugins=pylint.extensions.check_elif,
              pylint.extensions.overlapping_exceptions,
              pylint.extensions.redefined_variable_type,
 
-max-line-length = 110
+max-line-length = 115
 
 [MESSAGES CONTROL]
 
@@ -23,8 +23,9 @@ disable=missing-docstring,
         bad-whitespace,
         compare-to-zero,
         duplicate-code,
-        unnecessary-pass, # functions with nothing but docstrings look weird
-        invalid-name  # flake8 already enforces PEP8 naming
+        unnecessary-pass,    # functions with nothing but docstrings look weird
+        invalid-name,        # flake8 already enforces PEP8 naming
+        redefined-outer-name # pytest causes a lot of this
 
 
 [REPORTS]
