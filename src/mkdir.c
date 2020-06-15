@@ -108,9 +108,7 @@ int main(int argc, char **argv)
             }
             path[i] = '\0';
             if (path_exists(path) == -1) {
-                printf("Path '%s' does not exist.\n", path);
                 if (mkdir(path, mode) == -1) {
-                    printf("  and mkdir() failed!\n");
                     perror(argv[0]);
                     return 1;
                 }
