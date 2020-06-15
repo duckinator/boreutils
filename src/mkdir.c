@@ -11,11 +11,12 @@
  *
  * DESCRIPTION
  * ===========
- *     
- *     It literally just calls link(FILE1, FILE2).
+ *     Makes a directory named DIR.
  *
- *     FILE1        The pathname of an existing file.
- *     FILE2        The pathname of the link to create.
+ *     -p           Create all parent directories that don't exist.
+ *     -m MODE      (UNIMPLEMENTED) Sets the directory's mode to MODE.
+ *
+ *     DIR          The directory to make
  *
  *     --help       Print help text and exit.
  *     --version    Print version information and exit.
