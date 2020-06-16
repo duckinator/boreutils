@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+DOCKER=docker
+
+if which podman &>/dev/null; then
+    DOCKER=podman
+fi
+
+${DOCKER} run --rm -it -v "$(pwd):$(pwd):z" -w "$(pwd)" python:3.7-slim /bin/bash -c "apt-get update && apt-get install -y clang clang-tools make && pip install pytest && make lint && make test"
