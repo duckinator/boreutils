@@ -15,7 +15,7 @@ test_task:
   container:
     image: python:3.7-slim
   install_script:
-    - "apt-get update && apt-get install -y clang clang-tools make"
+    - "apt-get update && apt-get install -y clang clang-tools make bear"
     - pip install pytest
   lint_script:
     - make lint
