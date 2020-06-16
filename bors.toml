@@ -1,0 +1,7 @@
+status = [
+    "pylint",
+    "clang lint",
+    "test",
+]
+
+delete_merged_branches = true
