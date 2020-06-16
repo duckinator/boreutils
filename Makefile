@@ -17,8 +17,8 @@ bin/%: src/%.c
 	@mkdir -p bin/
 	${CC} ${CFLAGS} $< -o $@
 
-lint:
-	${CLANG_CHECK} $(filter %.c,${SRCFILES}) $(wildcard src/%.h)
+lint: compile_commands.json
+	${CLANG_CHECK} -p . $(filter %.c,${SRCFILES}) $(wildcard src/%.h)
 
 pylint:
 	pylint test
