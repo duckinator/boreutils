@@ -174,7 +174,7 @@ static size_t shellsplit(Pipeline *pipeline, char input[CHARS_PER_LINE]) {
 }
 // Helper function: convert argc+argv to a Pipeline, then execute it.
 static int execute_a(size_t argc, char **argv) {
-    Pipeline pipeline = {0};
+    Pipeline pipeline = {{{{0}, 0}}};
     for (size_t i = 0; i < argc; i++) {
         pipeline.commands[0].tokens[i] = argv[i];
     }
@@ -370,7 +370,7 @@ static void handle(char buf[CHARS_PER_LINE]) { // Handle a line of input.
     if (strlen(buf) == 0) { // If it was _only_ a newline, bail.
         return;
     }
-    Pipeline pipeline = {0};
+    Pipeline pipeline = {{{{0}, 0}}};
     shellsplit(&pipeline, buf); // tokenize the line.
     int status = execute(&pipeline);
     setenv("?", int_to_str(intbuf, status), 1); 
