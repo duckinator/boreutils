@@ -12,7 +12,7 @@ Things explicitly excluded include:
 - Things that make more sense as shell builtins, including:
   * Things that are only really usable in a shell: `cd`, `hash`, `read`, etc.
   * Things related to job control: `bg`, `fg`, `jobs`, etc.
-  * Things used exclusively for printing: `lp`, etc.
+- Things used exclusively for printing: `lp`, etc.
 - The following [Margin Codes](https://pubs.opengroup.org/onlinepubs/9699919799/help/codes.html):
   * `CD`: C-Language Development Utilities
   * `FD`: FORTRAN Development Utilities
@@ -20,7 +20,7 @@ Things explicitly excluded include:
   * `OB`: Obsolescent
   * `SD`: Software Development Utilities
   * `UU`: UUCP Utilities
-- Things that are very heavily influenced by other software, including:
+- Things that are very heavily influenced by software not in Boreutils, including:
   * Things that have terminal-specific behavior, like `tput`.
 
 Things not excluded, but prone to be put off forever include:
@@ -93,7 +93,7 @@ have notes explaining what is missing and a link to GitHub issues.
 - [ ] mailx
 - [ ] make
 - [x] man (It's not very robust, and doesn't support `-k`. [GH#8](https://github.com/duckinator/boreutils/issues/8))
-- [ ] mkdir
+- [x] mkdir
 - [ ] mkfifo
 - [ ] more
 - [ ] mv
