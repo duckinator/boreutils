@@ -1,6 +1,6 @@
 status = [
     "pylint",
-    "clang lint",
+    "clang_lint",
     "test",
 ]
 
