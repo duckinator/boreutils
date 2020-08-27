@@ -5,7 +5,7 @@
  *
  * SYNOPSIS
  * ========
- *     dir [-a|-A] [DIRECTORY]
+ *     dir [-a|-A] [-p] [DIRECTORY]
  *     dir [--help|--version]
  *
  * DESCRIPTION
@@ -84,8 +84,11 @@ static int list_dir_contents(const char *dir) {
 int main(int argc, char **argv)
 {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
-        puts("Usage: dir DIRECTORY");
+        puts("Usage: dir [-a|-A] [-p] DIRECTORY");
         puts("List the contents of a directory.");
+        puts("-a    Show all files, including '.' or '..'");
+        puts("-A    Show all files, except '.' or '..'");
+        puts("-p    Append trailing slash to directories");
         return 1;
     }
 

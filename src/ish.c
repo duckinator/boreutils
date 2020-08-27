@@ -62,9 +62,24 @@ static struct Settings_s { // `settings` variable holds all the settings.
     int no_prompt;
     int quick_exit;
 } settings = {0};
+static int update_pwd() {
+    char path_buf[8192] = {0};
+    if (getcwd(path_buf, sizeof(path_buf)) == NULL) {
+        perror("ish: update_cwd()");
+        return -1;
+    }
+    setenv("PWD", path_buf, 1);
+    return 0;
+}
 // Print the prompt (unless settings.no_prompt), return next line of input
 static char *prompt(char buf[CHARS_PER_LINE]) {
     if (!settings.no_prompt) {
+        char path_buf[8192] = {0};
+        if (getcwd(path_buf, sizeof(path_buf)) == NULL) {
+            perror("ish: prompt(): getcwd");
+        } else {
+            fputs(path_buf, stdout);
+        }
         fputs("$ ", stdout);
     }
     return fgets(buf, CHARS_PER_LINE, stdin);
@@ -247,8 +262,8 @@ static int handle_builtins(Pipeline *pipeline) { // Run builtin commands
         } else { // ish only supports `cd <path>`
             char path_buf[8192] = {0};
             if (getcwd(path_buf, sizeof(path_buf)) == NULL) {
-                perror("cd: getcwd");
-                return -1; // builtin encountered error
+                // If we get here, the CWD/PWD probably doesn't exist anymore.
+                strncpy(path_buf, getenv("PWD"), sizeof(path_buf));
             }
             if (strncmp(command->tokens[1], "-", 2) == 0) {
                 strncpy(command->tokens[1], getenv("OLDPWD"), sizeof(path_buf));
@@ -258,6 +273,9 @@ static int handle_builtins(Pipeline *pipeline) { // Run builtin commands
                 return -1; // builtin encountered error
             }
             setenv("OLDPWD", path_buf, 1); // successfully changed cwd.
+            if (update_pwd() == -1) {
+                return -1;
+            }
         }
         return 1; // handled by builtin
     } else if (strncmp(command->tokens[0], "exit", 5) == 0) { // exit builtin
@@ -289,7 +307,7 @@ static void run(char **argv, int in, int out) {
     redirect(in, STDIN_FILENO);   // child reads from `in`
     redirect(out, STDOUT_FILENO); // child writes to `out`
     if (execvp(argv[0], argv) == -1) {
-        perror("run");
+        perror(argv[0]);
     }
     exit(1);
 }
@@ -411,6 +429,16 @@ int main(int argc, char **argv) {
     }
 
     set_default_variables(argc, argv);
+
+    if (update_pwd() == -1) {
+        // if updating $PWD resulted in an error, try to `cd ${HOME}`
+        char *home_dir = getenv("HOME");
+        if ((home_dir == NULL) || (chdir(home_dir) == -1)) {
+            chdir("/"); // if $HOME isn't set or there was an error, `cd /`
+        }
+        update_pwd(); // assume it worked this time.
+    }
+
     while (prompt(input) != NULL) { // Prompt + read input, bail if NULL.
         handle(input);
     }
