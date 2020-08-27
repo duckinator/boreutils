@@ -307,7 +307,7 @@ static void run(char **argv, int in, int out) {
     redirect(in, STDIN_FILENO);   // child reads from `in`
     redirect(out, STDOUT_FILENO); // child writes to `out`
     if (execvp(argv[0], argv) == -1) {
-        perror("run");
+        perror(argv[0]);
     }
     exit(1);
 }
