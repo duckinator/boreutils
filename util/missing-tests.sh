@@ -15,7 +15,7 @@ echo
 echo "Common tests which are missing:"
 
 check() {
-    { grep "def $2()" "$1" &>/dev/null; } || echo "- $1: $2"
+    { grep "def $2(.*)" "$1" &>/dev/null; } || echo "- $1: $2"
 }
 
 for f in test/test_*.py; do
