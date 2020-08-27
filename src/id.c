@@ -46,6 +46,14 @@ typedef struct Options_s {
     int dash_r;
 } Options;
 
+typedef struct Ids_s {
+    char *login;
+    uid_t uid;
+    uid_t euid;
+    gid_t gid;
+    gid_t egid;
+} Ids;
+
 typedef struct GroupList_s {
     gid_t *groups;
     int size;
@@ -118,26 +126,23 @@ static void print_group(char *prefix, gid_t gid) {
     if (group_name) { printf("(%s)", group_name); }
 }
 
-static int main_default() {
-    uid_t uid = getuid();
-    uid_t euid = geteuid();
-    gid_t gid = getgid();
-    gid_t egid = getegid();
+static int main_default(Options *options, Ids *ids) {
+    (void)options; // unused.
 
-    print_user("uid=", uid);
+    print_user("uid=", ids->uid);
 
-    print_group(" gid=", gid);
+    print_group(" gid=", ids->gid);
 
-    if (uid != euid) {
-        print_user(" euid=", euid);
+    if (ids->uid != ids->euid) {
+        print_user(" euid=", ids->euid);
     }
 
-    if (gid != egid) {
-        print_group(" egid=", egid);
+    if (ids->gid != ids->egid) {
+        print_group(" egid=", ids->egid);
     }
 
     GroupList group_list = {0};
-    get_group_list(&group_list, uid);
+    get_group_list(&group_list, ids->uid);
 
     print_group(" groups=", group_list.groups[0]);
     for (int i = 1; i < group_list.size; i++) {
@@ -151,18 +156,18 @@ static int main_default() {
     return 0;
 }
 
-static int main_user(Options *options) {
+static int main_user(Options *options, Ids *ids) {
     if (options->dash_n) {
-        printf("%s\n", getlogin());
+        printf("%s\n", ids->login);
     } else {
-        printf("%u\n", getuid());
+        printf("%u\n", ids->uid);
     }
     return 0;
 }
 
-static int main_list_groups(Options *options) {
+static int main_list_groups(Options *options, Ids *ids) {
     GroupList group_list = {0};
-    get_group_list(&group_list, getuid());
+    get_group_list(&group_list, ids->uid);
 
     for (int i = 0; i < group_list.size; i++) {
         if (i > 0) { fputs(" ", stdout); }
@@ -181,15 +186,44 @@ static int main_list_groups(Options *options) {
     return 0;
 }
 
-static int main_group(Options *options) {
+static int main_group(Options *options, Ids *ids) {
     if (options->dash_n) {
-        struct group *group_obj = getgrgid(getgid());
+        struct group *group_obj = getgrgid(ids->gid);
         printf("%s\n", group_obj->gr_name);
     } else if (options->dash_r) {
-        printf("%u\n", getgid());
+        printf("%u\n", ids->gid);
     } else {
-        printf("%u\n", getegid());
+        printf("%u\n", ids->egid);
     }
+
+    return 0;
+}
+
+static int populate_ids(Options *options, Ids *ids) {
+    if (options->user) {
+        struct passwd *pw = getpwnam(options->user);
+
+        if (pw == NULL) {
+            fprintf(stderr, "id: no such user: %s\n", options->user);
+            return -1;
+        }
+
+        ids->login = pw->pw_name;
+        ids->uid = pw->pw_uid;
+        ids->gid = pw->pw_gid;
+
+        // Effective IDs aren't useful in this context, so
+        // we the effective IDs to the actual IDs.
+        ids->euid = ids->uid;
+        ids->egid = ids->gid;
+    } else {
+        ids->login = getlogin();
+        ids->uid = getuid();
+        ids->gid = getgid();
+        ids->euid = geteuid();
+        ids->egid = getegid();
+    }
+
 
     return 0;
 }
@@ -216,6 +250,8 @@ int main(int argc, char **argv) {
     }
 
     Options options = {0};
+    Ids ids = {0};
+
     if (parse_args(argc, argv, &options) == -1) {
         return 1;
     }
@@ -231,13 +267,17 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    if (populate_ids(&options, &ids) == -1) {
+        return 1;
+    }
+
     if (options.dash_u) {
-        return main_user(&options);
+        return main_user(&options, &ids);
     } else if (options.dash_g) {
-        return main_group(&options);
+        return main_group(&options, &ids);
     } else if (options.dash_G) {
-        return main_list_groups(&options);
+        return main_list_groups(&options, &ids);
     } else {
-        return main_default();
+        return main_default(&options, &ids);
     }
 }
