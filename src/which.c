@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    Path path = {0};
+    Path path = {{0}, 0, 0};
     if (parse_path(&path) == -1) {
         fprintf(stderr, "which: environment variable PATH is not set\n");
         return 1;
