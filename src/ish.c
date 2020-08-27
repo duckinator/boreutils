@@ -401,7 +401,6 @@ static void set_default_variables(int argc, char **argv) {
         if (argv[i][0] == '-') { offset++; continue; } // skip flags.
         setenv(int_to_str(intbuf, i - offset), argv[i], 1);
     }
-    update_pwd();
 }
 int main(int argc, char **argv) {
     char input[CHARS_PER_LINE] = {0};
@@ -430,6 +429,16 @@ int main(int argc, char **argv) {
     }
 
     set_default_variables(argc, argv);
+
+    if (update_pwd() == -1) {
+        // if updating $PWD resulted in an error, try to `cd ${HOME}`
+        char *home_dir = getenv("HOME");
+        if ((home_dir == NULL) || (chdir(home_dir) == -1)) {
+            chdir("/"); // if $HOME isn't set or there was an error, `cd /`
+        }
+        update_pwd(); // assume it worked this time.
+    }
+
     while (prompt(input) != NULL) { // Prompt + read input, bail if NULL.
         handle(input);
     }
