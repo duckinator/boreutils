@@ -79,7 +79,7 @@ have notes explaining what is missing and a link to GitHub issues.
 - [ ] grep
 - [x] head
 - [ ] iconv
-- [ ] id
+- [x] id
 - [ ] join
 - [x] kill (`kill -l EXIT_STATUS` is unimplemented. [GH#7](https://github.com/duckinator/boreutils/issues/7))
 - [x] link
@@ -146,5 +146,6 @@ Here are non-POSIX.1-2017 utilities which are provided:
 
 - [x] dir (an extremely basic `ls` alternative)
 - [x] ish (an extremely basic shell; not POSIX-compliant)
+- [x] which (no standard)
 - [x] whoami (no standard)
 - [x] yes (no standard)
