@@ -112,10 +112,12 @@ int main(int argc, char **argv) {
     }
 
     for (; i < argc - 1; i++) {
-        char *normalized_dest = normalize_dest(argv[i], dest);
-        if (should_prompt && access(normalized_dest, F_OK) == 0) {
-            if (prompt(normalized_dest) == 0) {
-                continue;
+        if (should_prompt) {
+            char *normalized_dest = normalize_dest(argv[i], dest);
+            if (access(normalized_dest, F_OK) == 0) {
+                if (prompt(normalized_dest) == 0) {
+                    continue;
+                }
             }
         }
 
