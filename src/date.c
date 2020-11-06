@@ -40,7 +40,7 @@
 static int set_time(char *date, char **argv) {
     size_t len = strlen(date);
     struct tm tmp;
-    char *ret;
+    char *ret = NULL;
 
     // For determining the current year.
     time_t now;
@@ -60,13 +60,10 @@ static int set_time(char *date, char **argv) {
         // Set the year, since it's not specified.
         tmp.tm_year = local->tm_year;
         ret = strptime(date, "%m%d%H%M", &tmp);
-    } else {
-        fputs("Invalid date string\nSee 'date --help' for usage information.\n", stderr);
-        return 1;
     }
 
     if (ret == NULL) {
-        fputs("Somehow tried using invalid date string? (This shouldn't happen!)\n", stderr);
+        fputs("Invalid date string\nSee 'date --help' for usage information.\n", stderr);
         return 1;
     }
 
