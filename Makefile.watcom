@@ -1,0 +1,65 @@
+OUTDIR ?= /run/media/*/LEXAR\ MEDIA/butils
+
+# If PROJECT_ROOT isn't define, define it as $PWD.
+PROJECT_ROOT ?= ${PWD}
+
+# Always use the toolchain we downloaded.
+WATCOM ?= ${PROJECT_ROOT}/../hp200lx-apps/tools/openwatcom/
+PATH := ${WATCOM}/binl:${PATH}
+ENV := env "PATH=${PATH}" "WATCOM=${WATCOM}"
+
+# Typical Makefile-for-C-programs configuration.
+CC := wcl
+CFLAGS := -0 -bcl=dos -za99 -i=${HOME}/software/openwatcom/h
+#			-Wall -Wextra -Werror \
+#			-std=c99
+
+#CC := clang
+#CLANG_CHECK := clang-check
+
+#CFLAGS := -std=c11 -pedantic-errors -fdiagnostics-show-option \
+#			-Werror -Weverything -Wno-missing-noreturn \
+#			-D_XOPEN_SOURCE=700 -D_DEFAULT_SOURCE
+
+SRCFILES := $(wildcard src/*.c)
+EXEFILES := $(patsubst src/%,bin/%,$(patsubst %.c,%,${SRCFILES}))
+RSTFILES := $(patsubst src/%.c,doc/%.rst,${SRCFILES})
+
+all: ${EXEFILES} docs
+
+docs: ${RSTFILES}
+
+copy:
+	rm -f ${OUTDIR}/*.exe
+	cp bin/*.exe ${OUTDIR}/
+
+bin/id bin/uname bin/tty bin/whoami bin/tty bin/kill:
+	@echo "[skipping $@; not useful on DOS]"
+
+bin/dir bin/date:
+	@echo "[skipping $@; already exists on DOS]"
+
+bin/link bin/rmdir bin/pwd bin/rm bin/ish:
+	@echo "[skipping $@]"
+
+bin/%: src/%.c
+	@mkdir -p bin/
+	(cd src; ${ENV} ${CC} ${CFLAGS} ../$< -fe=../$@)
+
+pylint:
+	pylint test
+
+test: all
+	pytest
+
+doc/%.rst: src/%.c
+	@mkdir -p doc/
+	./util/ccomex.py $< > $@
+
+clean:
+	rm -rf bin/
+	rm -rf doc/
+	rm -f src/*.o
+	rm -f src/*.err
+
+.PHONY: clean all
