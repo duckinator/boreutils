@@ -29,11 +29,21 @@ all: ${EXEFILES} docs
 
 docs: ${RSTFILES}
 
-copy:
-	rm -f ${OUTDIR}/*.exe
-	cp bin/*.exe ${OUTDIR}/
+dosbox: dos
+	dosbox -c 'mount D: dosbox' -c 'D:' -c 'PATH=Z:\;D:\bin'
 
-bin/id bin/uname bin/tty bin/whoami bin/tty bin/kill:
+dos: all
+	rm -rf dos
+	mkdir -p dos/bin dos/doc
+	cp bin/*.exe dos/bin/
+	cp doc/*.rst dos/doc/
+
+copy:
+	rm -f ${OUTDIR}/*.exe ${OUTDIR}/doc/*.rst
+	cp bin/*.exe ${OUTDIR}/
+	cp doc/*.rst ${OUTDIR}/doc/
+
+bin/id bin/uname bin/tty bin/whoami bin/kill:
 	@echo "[skipping $@; not useful on DOS]"
 
 bin/dir bin/date:
@@ -62,4 +72,4 @@ clean:
 	rm -f src/*.o
 	rm -f src/*.err
 
-.PHONY: clean all
+.PHONY: clean all dosbox
