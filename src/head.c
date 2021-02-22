@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "boreutils.h"
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/utilities/head.html
