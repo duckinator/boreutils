@@ -54,7 +54,7 @@ static int parse_path(Path *path_obj) {
     path_obj->size = 1;
     path_obj->_path = path;
     path_obj->parts[0] = path_obj->_path;
-    for (size_t i = 0; i <= length; i++) {
+    for (size_t i = 0; i < length; i++) {
         if (path[i] == ':') {
             path[i] = '\0';
             path_obj->parts[path_obj->size] = path + i + 1;
