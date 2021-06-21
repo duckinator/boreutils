@@ -25,6 +25,11 @@
  *     --version    Print version information and exit.
  */
 
+// TODO: Determine if POSIX includes something we can use in place of getgrouplist().
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#define __BSD_VISIBLE 1
+#pragma clang diagnostic pop
 
 #include <stdio.h>
 #include <stdlib.h>
