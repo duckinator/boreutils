@@ -54,8 +54,8 @@ def test_file():
 
 def test_stdin():
     """Passing no arguments should read from stdin."""
-    p1 = subprocess.Popen(["printf", "1 abc\n2 def\n3 ghi\n4\n5\n6\n7\n8\n9\n10\n11\n12"], stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["./bin/tail"], stdin=p1.stdout, stdout=subprocess.PIPE)
-    p1.stdout.close()
-    output = p2.communicate()[0].decode()
-    assert output == "3 ghi\n4\n5\n6\n7\n8\n9\n10\n11\n12"
+    with subprocess.Popen(["printf", "1 abc\n2 def\n3 ghi\n4\n5\n6\n7\n8\n9\n10\n11\n12"], stdout=subprocess.PIPE) as p1:
+        with subprocess.Popen(["./bin/tail"], stdin=p1.stdout, stdout=subprocess.PIPE) as p2:
+            p1.stdout.close()
+            output = p2.communicate()[0].decode()
+            assert output == "3 ghi\n4\n5\n6\n7\n8\n9\n10\n11\n12"

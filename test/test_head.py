@@ -71,20 +71,20 @@ def test_file_n11():
 
 def test_stdin():
     """Passing no arguments should read from stdin."""
-    p1 = subprocess.Popen(["printf", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"], stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["./bin/head"], stdin=p1.stdout, stdout=subprocess.PIPE)
-    p1.stdout.close()
-    output = p2.communicate()[0].decode()
-    assert output == "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+    with subprocess.Popen(["printf", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"], stdout=subprocess.PIPE) as p1:
+        with subprocess.Popen(["./bin/head"], stdin=p1.stdout, stdout=subprocess.PIPE) as p2:
+            p1.stdout.close()
+            output = p2.communicate()[0].decode()
+            assert output == "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
 
 
 def test_stdin_n11():
     """Passing only `-n 11` should read 11 lines from stdin."""
-    p1 = subprocess.Popen(["printf", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"], stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["./bin/head", "-n", "11"], stdin=p1.stdout, stdout=subprocess.PIPE)
-    p1.stdout.close()
-    output = p2.communicate()[0].decode()
-    assert output == "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n"
+    with subprocess.Popen(["printf", "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"], stdout=subprocess.PIPE) as p1:
+        with subprocess.Popen(["./bin/head", "-n", "11"], stdin=p1.stdout, stdout=subprocess.PIPE) as p2:
+            p1.stdout.close()
+            output = p2.communicate()[0].decode()
+            assert output == "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n"
 
 
 def test_stdin_file_n3():
@@ -92,8 +92,8 @@ def test_stdin_file_n3():
     path1 = Path("src/basename.c").resolve()
     expected_path1 = "\n".join(path1.read_text().splitlines()[0:3]) + "\n"
 
-    p1 = subprocess.Popen(["printf", "1\n2\n3\n4\n5\n6\n"], stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["./bin/head", "-n", "3", str(path1), "-"], stdin=p1.stdout, stdout=subprocess.PIPE)
-    p1.stdout.close()
-    output = p2.communicate()[0].decode()
-    assert output == f"==> {str(path1)} <==\n" + expected_path1 + "\n==> standard input <==\n" + "1\n2\n3\n"
+    with subprocess.Popen(["printf", "1\n2\n3\n4\n5\n6\n"], stdout=subprocess.PIPE) as p1:
+        with subprocess.Popen(["./bin/head", "-n", "3", str(path1), "-"], stdin=p1.stdout, stdout=subprocess.PIPE) as p2:
+            p1.stdout.close()
+            output = p2.communicate()[0].decode()
+            assert output == f"==> {str(path1)} <==\n" + expected_path1 + "\n==> standard input <==\n" + "1\n2\n3\n"
