@@ -48,6 +48,7 @@ static int parse_path(Path *path_obj) {
 
     size_t length = strlen(tmp) + 1;
     path = malloc(sizeof(char) * length);
+    memset(path, 0, length);
     strncpy(path, tmp, length);
 
     path_obj->size = 1;
