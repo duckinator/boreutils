@@ -31,6 +31,23 @@ extern char **environ;
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/utilities/env.html
 
+static int bu_clearenv(void) {
+    /// clearenv() does not exist on all platforms, and setting the
+    /// environ pointer directly can break things on some platforms.
+    ///
+    /// So, for now, we implement it in terms of unsetenv().
+    while (environ[0]) {
+        char *end = strchr(environ[0], '=');
+        size_t len = (size_t)(end - environ[0]);
+        char *name = malloc(sizeof(char) * (len + 1));
+        strncpy(name, environ[0], len + 1);
+        name[len] = 0;
+        unsetenv(name);
+        free(name);
+    }
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     if (has_arg(argc, argv, "-h") || has_arg(argc, argv, "--help")) {
@@ -47,7 +64,7 @@ int main(int argc, char **argv)
     int i = 1; // argv[0] is the path to `env`, so we want to skip it.
     if (argc > 1 && strncmp(argv[1], "-i", 3) == 0) {
         i++;
-        clearenv();
+        bu_clearenv();
     }
 
     for (; i < argc; i++) {
