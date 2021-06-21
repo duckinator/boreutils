@@ -93,7 +93,7 @@ static int which(Path *path, char *name, int all, int quiet) {
         free(file_path);
     }
 
-    return 0;
+    return found_any - 1;
 }
 
 int main(int argc, char **argv) {
