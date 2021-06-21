@@ -73,7 +73,6 @@ static int parse_path(Path *path_obj) {
 
 static int which(Path *path, char *name, int all, int quiet) {
     int found_any = 0;
-    (void)path; (void)name; (void)all; (void)quiet;
 
     for (size_t i = 0; i < path->size; i++) {
         int length = snprintf(NULL, 0, "%s/%s", path->parts[i], name);
