@@ -4,7 +4,7 @@ CC := clang
 CLANG_CHECK := clang-check
 
 CFLAGS := -std=c11 -pedantic-errors -fdiagnostics-show-option \
-			-Werror -Weverything -Wno-missing-noreturn \
+			-Werror -Weverything -Wno-missing-noreturn -Wno-unused-macros \
 			-D_XOPEN_SOURCE=700 -D_DEFAULT_SOURCE
 
 SRCFILES != ls src/*.c
