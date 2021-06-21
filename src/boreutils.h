@@ -58,7 +58,6 @@ void bu_extra_argument(char *name) {
 
 
 void bu_invalid_argument(char *name, char *arg) {
-    printf("arg = '%s'\n", arg);
     // <name>: Extra argument
     fputs(name, stderr);
     fputs(": Invalid argument: ", stderr);
