@@ -1,11 +1,16 @@
 .POSIX:
 
+# Some potential options:
+# - SANITIZE=address,undefined
+# - SANITIZE=memory
+
 CC := clang
 CLANG_CHECK := clang-check
 
 CFLAGS := -std=c11 -pedantic-errors -fdiagnostics-show-option \
 			-Werror -Weverything -Wno-missing-noreturn -Wno-unused-macros \
-			-D_XOPEN_SOURCE=700 -D_DEFAULT_SOURCE
+			-D_XOPEN_SOURCE=700 -D_DEFAULT_SOURCE \
+			-fsanitize=${SANITIZE} -g
 
 SRCFILES != ls src/*.c
 EXEFILES != echo ${SRCFILES} | sed 's/src/bin/g' | sed 's/\.c//g'
