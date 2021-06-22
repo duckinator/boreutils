@@ -31,7 +31,8 @@ extern char **environ;
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/utilities/env.html
 
-static int bu_clearenv(void) {
+// Clang thinks `environ` is uninitialized, so we use NO_MEM_SANITIZE.
+NO_MEM_SANITIZE static int bu_clearenv(void) {
     /// clearenv() does not exist on all platforms, and setting the
     /// environ pointer directly can break things on some platforms.
     ///
