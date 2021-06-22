@@ -22,6 +22,11 @@ clang_lint_task:
 test_task:
   container:
     image: python:3.7-slim
+  env:
+    matrix:
+      - SANITIZE:
+      - SANITIZE: address,undefined
+      - SANITIZE: memory
   install_script:
     - "apt-get update && apt-get install -y clang make"
     - pip install pytest
