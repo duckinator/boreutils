@@ -104,6 +104,8 @@ static void tail_bytes(FILE *stream, int bytes) {
 
         buf[bytes] = 0;
         fputs(buf, stdout);
+
+        free(buf);
     }
 }
 
