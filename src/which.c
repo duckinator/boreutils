@@ -65,6 +65,7 @@ static int parse_path(Path *path_obj) {
             fprintf(stderr, "which: error: Your path has more than %i directories.\n", MAX_PATH_PARTS);
             fprintf(stderr, "I never thought this would happen.\n");
             fprintf(stderr, "Head to https://da.gd/big-path to open an issue, and I'll fix it. <3\n");
+            free(path_obj->_path);
             exit(-1);
         }
     }
@@ -146,6 +147,8 @@ int main(int argc, char **argv) {
             ret = 1;
         }
     }
+
+    free(path._path);
 
     return ret;
 }
