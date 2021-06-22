@@ -88,6 +88,7 @@ static int which(Path *path, char *name, int all, int quiet) {
                 puts(file_path);
             }
             if (!all) {
+                free(file_path);
                 break;
             }
         }
