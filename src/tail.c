@@ -157,9 +157,9 @@ static void tail_lines(FILE *stream, int lines) {
         if (bytes_read > 0 && line != NULL) {
             linebuf[line_idx] = malloc(sizeof(char) * (strlen(line) + 1));
             strcpy(linebuf[line_idx], line);
-            free(line);
             line_idx++;
         }
+
         if (line_idx > lines) {
             free(linebuf[0]);
             for (int i = 0; i < lines; i++) {
@@ -167,15 +167,17 @@ static void tail_lines(FILE *stream, int lines) {
             }
             line_idx = lines;
         }
-    }
 
-    if (line != NULL) {
-        free(line);
+        if (line != NULL) {
+            free(line);
+        }
     }
 
     for (int i = 0; i < lines; i++) {
         fputs(linebuf[i], stdout);
     }
+
+    free(linebuf);
 }
 
 static void tail_stream(FILE *stream, int bytes, int lines) {
