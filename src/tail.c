@@ -170,11 +170,14 @@ static void tail_lines(FILE *stream, int lines) {
 
         if (line != NULL) {
             free(line);
+            line = NULL;
         }
     }
 
     for (int i = 0; i < lines; i++) {
         fputs(linebuf[i], stdout);
+        free(linebuf[i]);
+        linebuf[i] = NULL;
     }
 
     free(linebuf);
