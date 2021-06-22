@@ -47,6 +47,9 @@ def test_print():
 
 
 def test_dash_i():
-    assert check(["env", "-i", "a=b", "c=d", "E=F G H I"]).stdout == "a=b\nc=d\nE=F G H I\n"
+    lines = check(["env", "-i", "a=b", "c=d", "E=F G H I"]).stdout.split("\n")
+    assert "a=b" in lines
+    assert "c=d" in lines
+    assert "E=F G H I" in lines
     # NOTE: This next test may be fragile, since it relies on a functioning `sh`.
     assert check(["env", "-i", "foo=bar", "sh", "-c", "echo ${foo}"]).stdout == "bar\n"

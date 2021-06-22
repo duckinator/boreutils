@@ -49,8 +49,8 @@ def test_file():
 
 def test_stdin():
     """Passing no arguments should read from stdin."""
-    p1 = subprocess.Popen(["echo", "owo"], stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["./bin/cat"], stdin=p1.stdout, stdout=subprocess.PIPE)
-    p1.stdout.close()
-    output = p2.communicate()[0].decode()
-    assert output == "owo\n"
+    with subprocess.Popen(["echo", "owo"], stdout=subprocess.PIPE) as p1:
+        with subprocess.Popen(["./bin/cat"], stdin=p1.stdout, stdout=subprocess.PIPE) as p2:
+            p1.stdout.close()
+            output = p2.communicate()[0].decode()
+            assert output == "owo\n"

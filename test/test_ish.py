@@ -10,25 +10,26 @@ from helpers import run
 def ish(cmd, args=None):
     if args is None:
         args = []
-    p1 = subprocess.Popen(["echo", cmd], stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["./bin/ish", "-q", *args], stdin=p1.stdout,
-                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    p1.stdout.close()
-    output = p2.communicate()
-    if output[0]:
-        stdout = output[0].decode()
-    else:
-        stdout = ''
 
-    if output[1]:
-        stderr = output[1].decode()
-    else:
-        stderr = ''
+    with subprocess.Popen(["echo", cmd], stdout=subprocess.PIPE) as p1:
+        with subprocess.Popen(["./bin/ish", "-q", *args], stdin=p1.stdout,
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p2:
+            p1.stdout.close()
+            output = p2.communicate()
+            if output[0]:
+                stdout = output[0].decode()
+            else:
+                stdout = ''
 
-    return {'stdout': stdout,
-            'stderr': stderr,
-            'process': p2,
-            'returncode': p2.returncode}
+            if output[1]:
+                stderr = output[1].decode()
+            else:
+                stderr = ''
+
+            return {'stdout': stdout,
+                    'stderr': stderr,
+                    'process': p2,
+                    'returncode': p2.returncode}
 
 
 def ishx(cmd, args=None):

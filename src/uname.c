@@ -77,7 +77,7 @@ int main(int argc, char **argv)
             else if (flag == 's') { dash_s = 1; }
             else if (flag == 'v') { dash_v = 1; }
             else {
-                char bad_flag_msg[16] = "unknown flag: -X";
+                char bad_flag_msg[17] = "unknown flag: -X";
                 bad_flag_msg[15] = flag;
                 bu_invalid_argument(argv[0], bad_flag_msg);
                 return 1;

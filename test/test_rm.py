@@ -54,7 +54,7 @@ def test_main():
 def test_no_flags(tree):
     """Test without -f, -i, or -r/-R."""
     data, a, b = tree
-    assert "directory" in check_fail(["rm", str(data)]).stderr
+    assert f"cannot remove '{data}': " in check_fail(["rm", str(data)]).stderr
     assert data.exists()
     assert a.exists()
     assert b.exists()

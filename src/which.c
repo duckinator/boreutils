@@ -48,12 +48,13 @@ static int parse_path(Path *path_obj) {
 
     size_t length = strlen(tmp) + 1;
     path = malloc(sizeof(char) * length);
+    memset(path, 0, length);
     strncpy(path, tmp, length);
 
     path_obj->size = 1;
     path_obj->_path = path;
     path_obj->parts[0] = path_obj->_path;
-    for (size_t i = 0; i <= length; i++) {
+    for (size_t i = 0; i < length; i++) {
         if (path[i] == ':') {
             path[i] = '\0';
             path_obj->parts[path_obj->size] = path + i + 1;
@@ -73,7 +74,6 @@ static int parse_path(Path *path_obj) {
 
 static int which(Path *path, char *name, int all, int quiet) {
     int found_any = 0;
-    (void)path; (void)name; (void)all; (void)quiet;
 
     for (size_t i = 0; i < path->size; i++) {
         int length = snprintf(NULL, 0, "%s/%s", path->parts[i], name);
@@ -94,7 +94,7 @@ static int which(Path *path, char *name, int all, int quiet) {
         free(file_path);
     }
 
-    return 0;
+    return found_any - 1;
 }
 
 int main(int argc, char **argv) {

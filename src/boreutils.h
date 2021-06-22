@@ -4,6 +4,16 @@
 #include <stdio.h>
 #include <string.h>
 
+#if defined(__has_feature)
+#   if __has_feature(memory_sanitizer)
+// If memory sanitizer feature is available.
+#define NO_MEM_SANITIZE __attribute__((no_sanitize("memory")))
+#   else
+// If memory sanitizer feature is not available.
+#define NO_MEM_SANITIZE
+#   endif
+#endif
+
 // BU_PATH_BUFSIZE is 8KB which is, in practice, larger than any PATH_MAX
 // value I've encountered.
 //
