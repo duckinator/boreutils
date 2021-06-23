@@ -79,37 +79,40 @@ static void skip_bytes(FILE *stream, int bytes) {
 }
 
 static void tail_bytes(FILE *stream, int bytes) {
-    if (bytes > 0) { // skip <bytes> chars, print everything else
+    if (bytes > 0) {
+        // skip <bytes> chars, print everything else
         skip_bytes(stream, bytes);
         copy_rest(stream);
-    } else { // print last <bytes> chars
-        bytes = -bytes;
-        char *buf = malloc(sizeof(char) * ((size_t)bytes + 1));
-        int idx = 0;
+        return;
+    }
 
-        while (1) {
-            int ret = fgetc(stream);
-            if (ret == EOF) {
-                break;
-            }
-            buf[idx] = (char)ret;
+    // print last <bytes> chars
+    bytes = -bytes;
+    char *buf = calloc((size_t)bytes + 1, sizeof(char));
+    int idx = 0;
 
-            if (idx > bytes) {
-                for (int i = 0; i < bytes; i++) {
-                    buf[i] = buf[i + 1];
-                }
-                buf[bytes] = 0;
-                idx = 0;
-            }
-
-            idx++;
+    while (1) {
+        int ret = fgetc(stream);
+        if (ret == EOF) {
+            break;
         }
 
-        buf[bytes] = 0;
-        fputs(buf, stdout);
+        buf[idx] = (char)ret;
+        idx++;
 
-        free(buf);
+        if (idx > bytes) {
+            for (int i = 0; i < bytes; i++) {
+                buf[i] = buf[i + 1];
+            }
+            buf[bytes] = 0;
+            idx--;
+        }
     }
+
+    buf[bytes] = 0;
+    fputs(buf, stdout);
+
+    free(buf);
 }
 
 static void skip_lines(FILE *stream, int lines) {
@@ -145,7 +148,7 @@ static void tail_lines(FILE *stream, int lines) {
     // So we make it positive, since that's easier to work with.
     lines = -lines;
 
-    char **linebuf = malloc(sizeof(char*) * (size_t)(lines + 1));
+    char **linebuf = calloc((size_t)lines + 1, sizeof(char*));
     char *line = NULL;
     size_t n = 0;
     ssize_t bytes_read = 1;
