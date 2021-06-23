@@ -50,12 +50,15 @@ static int copy_rest(FILE *stream) {
     while (bytes_read >= 0) {
         bytes_read = getline(&line, &n, stream);
 
-        if (bytes_read == -1) {
-            break;
-        }
-
         if (bytes_read > 0 && line != NULL) {
             fputs(line, stdout);
+        }
+
+        free(line);
+        line = NULL;
+
+        if (bytes_read == -1) {
+            break;
         }
     }
 
@@ -138,6 +141,8 @@ static void tail_lines(FILE *stream, int lines) {
         return;
     }
 
+    // At this point, lines is guaranteed to be negative.
+    // So we make it positive, since that's easier to work with.
     lines = -lines;
 
     char **linebuf = malloc(sizeof(char*) * (size_t)(lines + 1));
@@ -155,8 +160,7 @@ static void tail_lines(FILE *stream, int lines) {
         }
 
         if (bytes_read > 0 && line != NULL) {
-            linebuf[line_idx] = malloc(sizeof(char) * (strlen(line) + 1));
-            strcpy(linebuf[line_idx], line);
+            linebuf[line_idx] = line;
             line_idx++;
         }
 
@@ -166,18 +170,17 @@ static void tail_lines(FILE *stream, int lines) {
                 linebuf[i] = linebuf[i + 1];
             }
             line_idx = lines;
-        }
 
-        if (line != NULL) {
-            free(line);
-            line = NULL;
+            // Set it to NULL to avoid a double-free() below.
+            linebuf[lines] = NULL;
         }
     }
 
     for (int i = 0; i < lines; i++) {
-        fputs(linebuf[i], stdout);
-        free(linebuf[i]);
-        linebuf[i] = NULL;
+        if (linebuf[i]) {
+            fputs(linebuf[i], stdout);
+            free(linebuf[i]);
+        }
     }
 
     free(linebuf);
@@ -200,6 +203,8 @@ static void tail_file(char *path, int bytes, int lines) {
     }
 
     tail_stream(stream, bytes, lines);
+
+    fclose(stream);
 }
 
 int main(int argc, char **argv)
