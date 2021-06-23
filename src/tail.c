@@ -155,10 +155,6 @@ static void tail_lines(FILE *stream, int lines) {
         n = 0;
         bytes_read = getline(&line, &n, stream);
 
-        if (bytes_read == -1) {
-            break;
-        }
-
         if (bytes_read > 0 && line != NULL) {
             linebuf[line_idx] = line;
             line_idx++;
