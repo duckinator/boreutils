@@ -59,3 +59,15 @@ def test_stdin():
             p1.stdout.close()
             output = p2.communicate()[0].decode()
             assert output == "3 ghi\n4\n5\n6\n7\n8\n9\n10\n11\n12"
+
+    with subprocess.Popen(["printf", "abcdefhij1234567890"], stdout=subprocess.PIPE) as p1:
+        with subprocess.Popen(["./bin/tail", "-c", "11"], stdin=p1.stdout, stdout=subprocess.PIPE) as p2:
+            p1.stdout.close()
+            output = p2.communicate()[0].decode()
+            assert output == "34567890"
+
+    with subprocess.Popen(["printf", "abcdefhij1234567890"], stdout=subprocess.PIPE) as p1:
+        with subprocess.Popen(["./bin/tail", "-c", "-11"], stdin=p1.stdout, stdout=subprocess.PIPE) as p2:
+            p1.stdout.close()
+            output = p2.communicate()[0].decode()
+            assert output == "j1234567890"
