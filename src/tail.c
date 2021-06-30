@@ -158,6 +158,14 @@ static void tail_lines(FILE *stream, int lines) {
         n = 0;
         bytes_read = getline(&line, &n, stream);
 
+        // Sometimes, when glibc's getline() returns -1, it has set
+        // `line` to a 120-byte buffer of uninitialized memory.
+        //
+        // Thanks, GNU.
+        if (bytes_read == -1 && line != NULL) {
+            free(line);
+        }
+
         if (bytes_read > 0 && line != NULL) {
             linebuf[line_idx] = line;
             line_idx++;
