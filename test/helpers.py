@@ -38,6 +38,13 @@ def check(cmd, **kwargs):
         return subprocess.run(cmd, capture_output=True, text=True, check=True, **kwargs)
 
 
+def check_no_stderr(cmd, **kwargs):
+    """Same as run(cmd, **kwargs), but asserts stderr is empty."""
+    ret = check(cmd, **kwargs)
+    assert len(ret.stderr) == 0
+    return ret
+
+
 def check_version(tool):
     """Check if running `{tool} --version` has '(Boreutils)' as the second word."""
     return check([tool, "--version"]).stdout.split(' ')[1] == '(Boreutils)'

@@ -28,7 +28,7 @@ lint: compile_commands.json
 	${CLANG_CHECK} -p . ${SRCFILES}
 
 pylint:
-	pylint test
+	pylint $$(find test -name '*.py')
 
 test: all
 	pytest
