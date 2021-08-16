@@ -4,12 +4,10 @@ Tests for POSIX-compatible `id`.
 https://pubs.opengroup.org/onlinepubs/9699919799/utilities/id.html
 """
 
-from pathlib import Path
-import pytest
-from helpers import check, check_no_stderr, check_fail, check_version, run
 import grp
 import os
 import pwd
+from helpers import check_no_stderr, check_version, run
 
 def test_version():
     """Check that we're using Boreutil's implementation."""
