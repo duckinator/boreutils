@@ -25,12 +25,6 @@
  *     --version    Print version information and exit.
  */
 
-// TODO: Determine if POSIX includes something we can use in place of getgrouplist().
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wreserved-id-macro"
-#define __BSD_VISIBLE 1
-#pragma clang diagnostic pop
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,6 +59,44 @@ typedef struct GroupList_s {
 } GroupList;
 #pragma clang diagnostic pop
 
+// getgrouplist() is nonstandard, so I wound up reimplementing it myself
+// using only the standard getgrent() and endgrent().
+static int _bu_getgrouplist(const char *name, gid_t basegid, gid_t *groups,
+        int *ngroups) {
+    struct group *grp = NULL;
+    int max_groups = *ngroups;
+    int num_groups = 0;
+
+    if (max_groups > 0) {
+        groups[0] = basegid;
+    }
+    num_groups++;
+
+    while ((grp = getgrent())) {
+        char *mem_name = NULL;
+        for (size_t i = 0; grp->gr_mem[i] != NULL; i++) {
+            mem_name = grp->gr_mem[i];
+            if (strcmp(mem_name, name) == 0) {
+                if (num_groups < max_groups) {
+                    groups[num_groups] = grp->gr_gid;
+                }
+                num_groups++;
+                break;
+            }
+        }
+    }
+
+    endgrent();
+
+    *ngroups = num_groups;
+
+    if (num_groups > max_groups) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
 static void get_group_list(GroupList *group_list, uid_t uid) {
     struct passwd* pw = getpwuid(uid);
     if(pw == NULL){
@@ -72,7 +104,7 @@ static void get_group_list(GroupList *group_list, uid_t uid) {
     }
 
     // Get number of groups.
-    getgrouplist(pw->pw_name, pw->pw_gid, NULL, &(group_list->size));
+    _bu_getgrouplist(pw->pw_name, pw->pw_gid, NULL, &(group_list->size));
 
     // Allocate group list info.
     size_t size = sizeof(gid_t) * (size_t)group_list->size;
@@ -80,7 +112,7 @@ static void get_group_list(GroupList *group_list, uid_t uid) {
     memset(group_list->groups, 0, size);
 
     // Get groups.
-    getgrouplist(pw->pw_name, pw->pw_gid, group_list->groups, &(group_list->size));
+    _bu_getgrouplist(pw->pw_name, pw->pw_gid, group_list->groups, &(group_list->size));
 }
 
 static int parse_args(int argc, char **argv, Options *options) {
