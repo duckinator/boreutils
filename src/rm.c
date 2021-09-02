@@ -89,9 +89,20 @@ static int rmtree_cb(const char *fpath, const struct stat *sb, int tflag,
 }
 
 static int rmtree(char *fpath) {
-    // FTW_DEPTH = report files first, then their parent directories.
-    // FTW_PHYS  = don't follow symlinks; report the symlinks themselves.
-    return nftw(fpath, rmtree_cb, 20 /* fd_limit */, FTW_DEPTH | FTW_PHYS);
+   struct stat statbuf = {0};
+   if (stat(fpath, &statbuf) != 0) {
+       return 0;
+    }
+
+   if (S_ISDIR(statbuf.st_mode)) {
+        // FTW_DEPTH = report files first, then their parent directories.
+        // FTW_PHYS  = don't follow symlinks; report the symlinks themselves.
+        return nftw(fpath, rmtree_cb, 20 /* fd_limit */, FTW_DEPTH | FTW_PHYS);
+    } else {
+        // nftw() on at least macOS does not like fpath being a file.
+        // So we handle that case by directly calling rmtree_cb().
+        return rmtree_cb(fpath, NULL, FTW_F, NULL);
+    }
 }
 
 
