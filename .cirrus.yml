@@ -21,9 +21,9 @@ pylint_task:
 
 clang_lint_task:
   container:
-    image: debian:10-slim
+    image: debian:12-slim
   install_script:
-    - "apt-get update && apt-get install -y clang clang-tools make bear"
+    - "apt-get update && apt-get install -y clang clang-tools make"
   script:
     - make lint
 

@@ -33,8 +33,8 @@ test: all
 	pytest
 
 compile_commands.json:
-	$(MAKE) clean
-	bear $(MAKE) all
+	rm -f compile_commands.json
+	$(MAKE) ${EXEFILES} CC="./util/append-compile-commands.py ${CC}"
 
 ${RSTFILES}:
 	@mkdir -p doc/
