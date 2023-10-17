@@ -9,7 +9,7 @@ CLANG_CHECK := clang-check
 
 CFLAGS := -std=c11 -g -pedantic-errors -fsanitize=${SANITIZE} \
 	-Wall -Wextra -Wconversion -Wcast-qual \
-	-D_XOPEN_SOURCE=700 -D_DEFAULT_SOURCE
+	-D_XOPEN_SOURCE=700
 
 SRCFILES != ls src/*.c
 EXEFILES != echo ${SRCFILES} | sed 's/src/bin/g' | sed 's/\.c//g'
