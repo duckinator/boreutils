@@ -20,13 +20,14 @@ enable=all
 
 # Disable the message, report, category or checker with the given id(s).
 disable=missing-docstring,
-        bad-whitespace,
         compare-to-zero,
         duplicate-code,
         unnecessary-pass,       # functions with nothing but docstrings look weird
         invalid-name,           # flake8 already enforces PEP8 naming
         redefined-outer-name,   # pytest causes a lot of this
-        line-too-long           # happens a lot with `with ... as ...` statements
+        line-too-long,          # happens a lot with `with ... as ...` statements
+        unspecified-encoding,   # there's a lot of these -- definitely want a dedicated cleanup pass.
+        use-implicit-booleaness-not-comparison-to-string
 
 
 [REPORTS]
