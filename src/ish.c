@@ -62,7 +62,7 @@ static struct Settings_s { // `settings` variable holds all the settings.
     int no_prompt;
     int quick_exit;
 } settings = {0};
-static int update_pwd() {
+static int update_pwd(void) {
     char path_buf[8192] = {0};
     if (getcwd(path_buf, sizeof(path_buf)) == NULL) {
         perror("ish: update_cwd()");
@@ -88,7 +88,7 @@ static void fail(char *msg) { // Print `msg` to stderr and set $? to 1.
     fputs(msg, stderr);
     setenv("?", "1", 1);
 }
-static void print_if_usage() { // Explain how if statements work.
+static void print_if_usage(void) { // Explain how if statements work.
     fail("Usage: if CONDITION then { CONSEQUENT } else { ALTERNATIVE }\n");
 }
 static void closefd(int fd) { // Close fd and print an error if it failed

@@ -50,15 +50,15 @@ def test_default_output():
 
     user, group, grouplist_str = check_no_stderr(["id", username]).stdout.split(" ", 2)
 
-    assert user == "uid={}({})".format(uid, username)
-    assert group == "gid={}({})".format(gid, groupname)
+    assert user == f"uid={uid}({username})"
+    assert group == f"gid={gid}({groupname})"
     assert grouplist_str.startswith("groups=")
     assert grouplist_str.endswith("\n")
 
     grouplist = grouplist_str.strip().split("=", 1)[1].split(",")
     for group_id in group_ids:
         group_name = grp.getgrgid(group_id).gr_name
-        assert "{}({})".format(group_id, group_name) in grouplist
+        assert f"{group_id}({group_name})" in grouplist
 
     grouplist_str = check_no_stderr(["id", "-G", "-n", username]).stdout
     assert grouplist_str.endswith("\n")
