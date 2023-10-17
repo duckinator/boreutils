@@ -12,7 +12,7 @@ success_task:
 
 pylint_task:
   container:
-    image: python:3.7-slim
+    image: python:3.11-slim
   install_script:
     - pip install pylint pytest
   script:
@@ -29,7 +29,7 @@ clang_lint_task:
 
 test_task:
   container:
-    image: python:3.7-slim
+    image: python:3.11-slim
   env:
     matrix:
       - SANITIZE:
