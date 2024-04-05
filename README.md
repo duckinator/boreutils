@@ -66,7 +66,6 @@ have notes explaining what is missing and a link to GitHub issues.
 - [x] echo
 - [ ] ed
 - [x] env
-- [ ] ex
 - [ ] expand
 - [ ] expr
 - [x] false
@@ -89,13 +88,9 @@ have notes explaining what is missing and a link to GitHub issues.
 - [ ] logger
 - [ ] logname
 - [ ] ls
-- [ ] m4
-- [ ] mailx
-- [ ] make
 - [x] man (It's not very robust, and doesn't support `-k`. [GH#8](https://github.com/duckinator/boreutils/issues/8))
 - [x] mkdir
 - [ ] mkfifo
-- [ ] more
 - [ ] mv
 - [ ] newgrp
 - [ ] nice
@@ -131,16 +126,13 @@ have notes explaining what is missing and a link to GitHub issues.
 - [x] true
 - [ ] tsort
 - [x] tty
-- [ ] umask
 - [x] uname
 - [ ] unexpand
 - [ ] uniq
 - [x] unlink
 - [ ] uudecode
 - [ ] uuencode
-- [ ] vi
 - [ ] wc
-- [ ] xargs
 
 Here are non-POSIX.1-2017 utilities which are provided:
 
