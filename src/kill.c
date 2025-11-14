@@ -146,12 +146,16 @@ int main(int argc, char **argv)
             if (signal_num >= NUM_SIGNALS && (signal_num & 128) == 128)
                 signal_num -= 128;
 
-            if (signal_num >= NUM_SIGNALS) {
+            if (signal_num == 0) {          
+                // procps-ng `kill` says EXIT, but POSIX *explicitly* states
+                // that `kill -l 0` should print "0".
+                puts("0");
+            } else if (signal_num < NUM_SIGNALS  && signal_names[signal_num] != NULL) {
+                // `kill -l EXIT_STATUS` prints names without the SIG prefix.
+                printf("%s\n", signal_names[signal_num] + 3);
+            } else {
                 printf("unknown signal: %d\n", signal_num);
                 return 1;
-            } else {
-                // `kill -l EXIT_STATUS` prints names without the SIG prefix...
-                printf("%s\n", signal_names[signal_num] + 3);
             }
         } else {
             int i_per_line = 0;
