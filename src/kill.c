@@ -21,9 +21,6 @@
  *         If EXIT_STATUS is the value of a signal number, the corresponding
  *         SIGNAL_NAME for that is printed.
  *
- *         There's supposed to be something related to EXIT_STATUS and  $?,
- *         but I don't understand it. Pull requests are welcome.
- *
  *     SIGNAL_NAME      The name of the signal to send.
  *     SIGNAL_NUMBER    The signal number to send.
  *
@@ -36,6 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include "boreutils.h"
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/utilities/kill.html
@@ -105,6 +103,7 @@ int main(int argc, char **argv)
     char *pid_str = NULL;
     int dash_s = 0;
     int dash_l = 0;
+    char *exit_status = NULL;
 
     if (strncmp(argv[1], "-s", 3) == 0) {
         // `kill -s SIGNAL_NAME PID`
@@ -118,6 +117,9 @@ int main(int argc, char **argv)
     } else if (strncmp(argv[1], "-l", 3) == 0) {
         // `kill -l [EXIT_STATUS]`
         dash_l = 1;
+        if (argc > 2) {
+            exit_status = argv[2];
+        }
     } else if (argv[1][0] == '-') {
         // `kill -SIGNAL_NAME PID`
         // The +1 skips the leading dash.
@@ -129,15 +131,43 @@ int main(int argc, char **argv)
     }
 
     if (dash_l) {
-        int i_per_line = 0;
-        for (int i = 0; i < NUM_SIGNALS; i++) {
-            if (signal_names[i] != NULL) {
-                i_per_line++;
-                printf("%i) %s\t", i, signal_names[i]);
+        if (exit_status) {
+            char *endp;
+            errno = 0;
+            signal_num = strtol(exit_status, &endp, 10);
+            if (errno || *endp != 0) {
+                printf("unknown signal: %s\n", exit_status);
+                return 1;
             }
-            if (i_per_line > 3) {
-                puts("");
-                i_per_line = 0;
+
+            // Detect if the exit status given as argument
+            // has the "special" bit set that shells (?) like to set
+            // whenever an process died from a signal.
+            if (signal_num >= NUM_SIGNALS && (signal_num & 128) == 128)
+                signal_num -= 128;
+
+            if (signal_num == 0) {          
+                // procps-ng `kill` says EXIT, but POSIX *explicitly* states
+                // that `kill -l 0` should print "0".
+                puts("0");
+            } else if (signal_num < NUM_SIGNALS  && signal_names[signal_num] != NULL) {
+                // `kill -l EXIT_STATUS` prints names without the SIG prefix.
+                printf("%s\n", signal_names[signal_num] + 3);
+            } else {
+                printf("unknown signal: %d\n", signal_num);
+                return 1;
+            }
+        } else {
+            int i_per_line = 0;
+            for (int i = 0; i < NUM_SIGNALS; i++) {
+                if (signal_names[i] != NULL) {
+                    i_per_line++;
+                    printf("%i) %s\t", i, signal_names[i]);
+                }
+                if (i_per_line > 3) {
+                    puts("");
+                    i_per_line = 0;
+                }
             }
         }
         return 0;
