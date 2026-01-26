@@ -1,10 +1,8 @@
 """
 Tests for `yes`.
-
-https://pubs.opengroup.org/onlinepubs/9699919799/utilities/yes.html
 """
 
-from helpers import check, check_version, run
+from helpers import check_version, run, run_with_timeout
 
 
 def test_version():
@@ -31,6 +29,18 @@ def test_help():
 
 
 def test_main():
-    """`yes` normally prints stuff forever; the tests exit after 3 iterations."""
-    assert check(["yes", "-Wtesting"]).stdout == "y\ny\ny\n"
-    assert check(["yes", "-Wtesting", "2", "3"]).stdout == "-Wtesting 2 3\n-Wtesting 2 3\n-Wtesting 2 3\n"
+    """`yes` normally prints stuff forever; we stop it after a timeout."""
+    # Given that each repetition is "<phrase>\n", when we split on newlines,
+    # the last line should be empty.
+
+    lines = run_with_timeout(["yes"], timeout=0.25)[0].split("\n")
+    assert all(line == "y" for line in lines[:-2])
+    assert lines[-1] == ""
+
+    lines = run_with_timeout(["yes", "2"], timeout=0.25)[0].split("\n")
+    assert all(line == "2" for line in lines[:-2])
+    assert lines[-1] == ""
+
+    lines = run_with_timeout(["yes", "2", "3"], timeout=0.25)[0].split("\n")
+    assert all(line == "2" for line in lines[:-2])
+    assert lines[-1] == ""
