@@ -62,3 +62,13 @@ def check_fail(cmd, **kwargs):
     ret = run(cmd, **kwargs)
     assert ret.returncode > 0
     return ret
+
+def run_with_timeout(cmd, timeout=None):
+    with _modified_path():
+        with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+            try:
+                out, err = process.communicate(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                out, err = process.communicate()
+        return (out.decode(), err.decode())
